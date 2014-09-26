@@ -26,6 +26,7 @@ class Textures:
 class Model:
     def __init__(self):
         self.name=''
+        self.hasUV=False
         self.coordinates=Coordinates()
         self.materials=Materials()
         self.texture=Textures()
@@ -38,6 +39,56 @@ class Model:
     def setData(self):
         pass
     
+    def unloadCoordinates(self):
+        
+        print("<vertices>",end="")
+            
+        for i in range(0,len(self.coordinates.vertices)):
+            
+            print("%f %f %f "%tuple(self.coordinates.vertices[i]),end="")   
+                
+        print("</vertices>")
+        
+        print()
+        
+        print("<normal>",end="")
+        
+        for i in range(0,len(self.coordinates.normal)):
+            
+            print("%f %f %f "%tuple(self.coordinates.normal[i]),end="")
+                     
+        print("</normal>")
+        
+        print()
+            
+        if(self.hasUV):
+            
+            print("<uv>",end="")
+        
+            for i in range(0,len(self.coordinates.uv)):
+                
+                print("%f %f "%tuple(self.coordinates.uv[i]),end="")
+                   
+            print("</uv>")
+            
+            print() 
+    
+        print("<index>",end="")
+        
+        for i in self.coordinates.index:
+            print("%d "%i,end="")
+        
+        print("</index>")
+        
+    def unloadMaterials(self):
+        pass
+    
+    def unloadTexture(self):
+        pass
+    
+    def unloadLocalSpace(self):
+        pass
+    
     
 class Lights:
     pass
@@ -48,6 +99,14 @@ class Camera:
 class Loader:
     def __init__(self):
         self.modelList=[]
+        
+    def r3d(self,v):
+        return round(v[0],6), round(v[1],6), round(v[2],6)
+
+
+    def r2d(self,v):
+        return round(v[0],6), round(v[1],6)
+    
     
     def start(self):
         
@@ -77,39 +136,47 @@ class Loader:
                 for vertices in scene.objects[model.name].data.vertices:
                     
                     #get vertices of model
-                    print(vertices.co)
+                    
+                    model.coordinates.vertices.append(self.r3d(vertices.co))
                     
                     #get normal of model
-                
-                    print(vertices.normal)
-                    
+
+                    model.coordinates.normal.append(self.r3d(vertices.normal))
                 
                 for uvCoordinates in scene.objects[model.name].data.uv_layers.active.data:
                     
                     #get uv coordinates of model                    
-                    print(uvCoordinates.uv)
-                
+
+                    model.coordinates.uv.append(self.r2d(uvCoordinates.uv))
+                    model.hasUV=True
+                    
                 #get index of model
                 for indices in scene.objects[model.name].data.loops:
-                    print(indices.vertex_index)
-
+                    
+                    model.coordinates.index.append(indices.vertex_index)
                 
                 materials=scene.objects[model.name].active_material
                     
                 #get diffuse color
                 diffuse_color=materials.diffuse_color
-                print(diffuse_color)
+                
+                model.materials.diffuse.append(diffuse_color)
                 
                 #get specular color
                 specular_color=materials.specular_color
-                print(specular_color)
-                
+
+                model.materials.specular.append(specular_color)
                 #get texture name
+                
+                
                 texture=scene.objects[model.name].data.uv_textures.active.data[0].image.name
                 
-                print(texture)
+                model.texture=texture
                 
                 #get local matrix
+                matrix_local=scene.objects[model.name].matrix_local
+
+                model.localSpace.append(matrix_local)
                 
                 self.modelList.append(model)
                 
@@ -120,8 +187,37 @@ class Loader:
     def loadCamera(self):
         pass
 
+    def unloadData(self):
+        
+        print("<?xml version=\"1.0\" encoding=\"utf-8\"?>")
+        print("<ROLDIE xmlns=\"\" version=\"0.0.1\">")
+        
+        print("<asset>")
+        
+        self.unloadModel()
+        
+        
+        print("</asset>")
+        
+        print("</ROLDIE>")
+        
+        
     def unloadModel(self):
-        pass
+        
+        print("<meshes>")
+        
+        for model in self.modelList:
+            
+            print("<mesh name=\"%s\">"%model.name)
+            
+            model.unloadCoordinates()
+            
+            print("</mesh>")                                 
+            
+            print()
+        
+        print("</meshes>")
+    
     def unloadLights(self):
         pass
     
@@ -134,6 +230,7 @@ def main():
 
     loader=Loader()
     loader.loadModel()
+    loader.unloadData()
 
 if __name__ == '__main__':
     main()
