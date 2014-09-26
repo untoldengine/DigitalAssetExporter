@@ -73,21 +73,43 @@ class Loader:
                 #get name of model
                 model.name=models.name
                 
-                #get vertices of model
+                
                 for vertices in scene.objects[model.name].data.vertices:
+                    
+                    #get vertices of model
                     print(vertices.co)
                     
-                #get normal of model
+                    #get normal of model
                 
                     print(vertices.normal)
                     
-                #get uv coordinates of model
                 
                 for uvCoordinates in scene.objects[model.name].data.uv_layers.active.data:
                     
+                    #get uv coordinates of model                    
                     print(uvCoordinates.uv)
                 
                 #get index of model
+                for indices in scene.objects[model.name].data.loops:
+                    print(indices.vertex_index)
+
+                
+                materials=scene.objects[model.name].active_material
+                    
+                #get diffuse color
+                diffuse_color=materials.diffuse_color
+                print(diffuse_color)
+                
+                #get specular color
+                specular_color=materials.specular_color
+                print(specular_color)
+                
+                #get texture name
+                texture=scene.objects[model.name].data.uv_textures.active.data[0].image.name
+                
+                print(texture)
+                
+                #get local matrix
                 
                 self.modelList.append(model)
                 
