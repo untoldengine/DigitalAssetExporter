@@ -9,7 +9,7 @@ class Materials:
     def __init__(self):
         self.diffuse=[]
         self.specular=[]
-        
+        self.shininess=0.0
     
 class Coordinates:
     def __init__(self):
@@ -27,17 +27,19 @@ class Model:
     def __init__(self):
         self.name=''
         self.hasUV=False
+        self.hasMaterials=False
         self.coordinates=Coordinates()
         self.materials=Materials()
         self.texture=Textures()
         self.localSpace=[]
         self.absoluteSpace=[]    
 
-    def getData(self):
-        pass
-    
-    def setData(self):
-        pass
+    def unloadModelData(self):
+        
+        self.unloadCoordinates()
+        self.unloadMaterials()
+        self.unloadTexture()
+        self.unloadLocalSpace()
     
     def unloadCoordinates(self):
         
@@ -81,13 +83,47 @@ class Model:
         print("</index>")
         
     def unloadMaterials(self):
-        pass
-    
+        
+        if(self.hasMaterials):
+            print("<diffuse_color>",end="")
+            for d in self.materials.diffuse:
+                print("%f %f %f 1.0" %tuple(d),end="")  
+            print("</diffuse_color>")    
+                
+            print("<specular_color>",end="")
+            for s in self.materials.specular:
+                print("%f %f %f 1.0"%tuple(s),end="")
+            print("</specular_color>")    
+            
+            print("<ambient_color>",end="")    
+            print("0.0 0.0 0.0 1.0",end="")
+            print("</ambient_color>") 
+            
+            print("<emission_color>",end="")
+            print("0.0 0.0 0.0 1.0",end="")
+            print("</emission_color>") 
+            
+            print("<shininess>",end="")
+            print("%f"%self.materials.shininess,end="")
+            print("</shininess>")
+            print()
+            
     def unloadTexture(self):
-        pass
+        
+        if(self.hasUV):
+            print("<texture_image>%s</texture_image>"%self.texture)
+            
+            print()
     
     def unloadLocalSpace(self):
-        pass
+        
+        print("<local_matrix>",end="")
+        for m in self.localSpace:
+            print("%f %f %f %f "%tuple(m.row[0]),end="")
+            print("%f %f %f %f "%tuple(m.row[1]),end="")
+            print("%f %f %f %f "%tuple(m.row[2]),end="")
+            print("%f %f %f %f"%tuple(m.row[3]),end="")
+        print("</local_matrix>")
     
     
 class Lights:
@@ -155,23 +191,36 @@ class Loader:
                     
                     model.coordinates.index.append(indices.vertex_index)
                 
-                materials=scene.objects[model.name].active_material
+                #check if model has materials
+                
+                if(scene.objects[model.name].active_material):
+                
+                    model.hasMaterials=True
                     
-                #get diffuse color
-                diffuse_color=materials.diffuse_color
+                    materials=scene.objects[model.name].active_material
+                        
+                    #get diffuse color
+                    diffuse_color=materials.diffuse_color
+                    
+                    model.materials.diffuse.append(diffuse_color)
+                    
+                    #get specular color
+                    specular_color=materials.specular_color
+    
+                    model.materials.specular.append(specular_color)
+    
+                    #get shininess of material
+                    shininess=materials.specular_hardness
+                    
+                    model.materials.shininess=shininess
                 
-                model.materials.diffuse.append(diffuse_color)
                 
-                #get specular color
-                specular_color=materials.specular_color
-
-                model.materials.specular.append(specular_color)
                 #get texture name
-                
-                
-                texture=scene.objects[model.name].data.uv_textures.active.data[0].image.name
-                
-                model.texture=texture
+                if(model.hasUV):
+                    
+                    texture=scene.objects[model.name].data.uv_textures.active.data[0].image.name
+                    
+                    model.texture=texture
                 
                 #get local matrix
                 matrix_local=scene.objects[model.name].matrix_local
@@ -210,7 +259,7 @@ class Loader:
             
             print("<mesh name=\"%s\">"%model.name)
             
-            model.unloadCoordinates()
+            model.unloadModelData()
             
             print("</mesh>")                                 
             
