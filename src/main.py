@@ -82,6 +82,8 @@ class Model:
         
         print("</index>")
         
+        print()
+        
     def unloadMaterials(self):
         
         if(self.hasMaterials):
@@ -168,16 +170,21 @@ class Loader:
                 #get name of model
                 model.name=models.name
                 
-                
-                for vertices in scene.objects[model.name].data.vertices:
+                 #get index of model
+                for i,indices in enumerate(scene.objects[model.name].data.loops):
                     
                     #get vertices of model
                     
-                    model.coordinates.vertices.append(self.r3d(vertices.co))
+                    model.coordinates.vertices.append(self.r3d(scene.objects[model.name].data.vertices[indices.vertex_index].co))
                     
                     #get normal of model
 
-                    model.coordinates.normal.append(self.r3d(vertices.normal))
+                    model.coordinates.normal.append(self.r3d(scene.objects[model.name].data.vertices[indices.vertex_index].normal))
+                    
+                    
+                    #get the index
+                    model.coordinates.index.append(i)
+                
                 
                 for uvCoordinates in scene.objects[model.name].data.uv_layers.active.data:
                     
@@ -186,10 +193,7 @@ class Loader:
                     model.coordinates.uv.append(self.r2d(uvCoordinates.uv))
                     model.hasUV=True
                     
-                #get index of model
-                for indices in scene.objects[model.name].data.loops:
-                    
-                    model.coordinates.index.append(indices.vertex_index)
+               
                 
                 #check if model has materials
                 
