@@ -7,6 +7,115 @@ import bpy
 import mathutils
 from math import radians
 
+class Bone:
+    def __init__(self):
+        self.name=None
+        self.parent=None
+        self.boneObject=None
+        self.vertexGroupIndex=None
+        self.localMatrix=[]
+        self.inverseBindPoseMatrix=[]
+        self.vertexWeights=[]
+        self.index=None
+    
+class Armature:
+    def __init__(self):
+        self.name=None
+        self.armatureObject=None
+        self.rootBone=None
+        self.childrenBones=[]
+        self.vertexGroupWeight=[]
+        self.vertexGroupDict={}
+        self.numberOfBones=None
+        self.bones=[]
+        
+    def setAllBones(self):
+        
+        rootBone=self.armatureObject.data.bones[0]
+        
+        self.childrenBones.append(rootBone)
+        
+        self.loadChildrenBones(rootBone)
+
+        
+    def loadChildrenBones(self,bone):
+        
+        for children in bone.children:    
+            
+            self.childrenBones.append(children)
+            
+            self.loadChildrenBones(children)
+            
+    def loadBonesInfo(self):
+        
+        #get total count of bones
+        self.numberOfBones=len(self.childrenBones)
+        
+        for bones in self.childrenBones:
+            
+            bone=Bone()
+            
+            #get bone name
+            bone.name=bones.name
+            
+            #get bone local matrix
+            
+            if(bones.parent==None):
+                
+                bone.localMatrix.append(bones.matrix_local)
+                bone.parent='root'
+            else:
+                bone.localMatrix.append(bones.parent.matrix_local.inverted()*bones.matrix_local)
+                bone.parent=bones.parent.name
+            
+
+            #look for the vertex group
+            bone.index=self.vertexGroupDict[bone.name]
+            
+            #get vertex weights for bone            
+            for i in range(0,len(self.vertexGroupWeight),self.numberOfBones):
+                
+                bone.vertexWeights.append(self.vertexGroupWeight[bone.index+i])
+                
+                
+            #get bone bind inverse matrix
+            
+            
+            #attach bone to armature class
+            self.bones.append(bone)
+
+    def unloadBones(self):
+        
+        print("<armature>",end="")
+        
+        for bone in self.bones:
+            print()
+            print("<bone name=\"%s\" parent=\"%s\">"%(bone.name,bone.parent))
+            print("<local_matrix>",end="")
+            for m in bone.localMatrix:
+                print("%f %f %f %f "%tuple(m.row[0]),end="")
+                print("%f %f %f %f "%tuple(m.row[1]),end="")
+                print("%f %f %f %f "%tuple(m.row[2]),end="")
+                print("%f %f %f %f"%tuple(m.row[3]),end="")
+            print("</local_matrix>")
+            
+            print("<inverse_bone_pose_matrix>",end="")
+            
+            print("</inverse_bone_pose_matrix>")
+            
+            
+            print("<vertex_weights>",end="")
+            for vw in bone.vertexWeights:
+                print("%f "%vw,end="")
+            print("</vertex_weights>")
+            
+            print("</bone>")
+        
+        
+        print("</armature>")
+        
+        print()
+
 class Materials:
     def __init__(self):
         self.diffuse=[]
@@ -30,11 +139,15 @@ class Model:
         self.name=''
         self.hasUV=False
         self.hasMaterials=False
+        self.hasArmature=False
         self.coordinates=Coordinates()
         self.materials=Materials()
         self.texture=Textures()
         self.localSpace=[]
-        self.absoluteSpace=[]    
+        self.absoluteSpace=[]
+        self.armature=None
+        self.vertexGroupWeight=[] 
+        self.vertexGroupDict={}   
 
     def unloadModelData(self):
         
@@ -42,6 +155,7 @@ class Model:
         self.unloadMaterials()
         self.unloadTexture()
         self.unloadLocalSpace()
+        self.unloadArmature()
     
     def unloadCoordinates(self):
         
@@ -128,8 +242,17 @@ class Model:
             print("%f %f %f %f "%tuple(m.row[2]),end="")
             print("%f %f %f %f"%tuple(m.row[3]),end="")
         print("</local_matrix>")
+        
+        print()
+        
+    def unloadArmature(self):
+        
+        if(self.hasArmature):
+            self.armature.unloadBones()
     
-    
+    def setArmature(self):
+        self.armature.setRootBone()
+        
 class Lights:
     pass
 
@@ -210,6 +333,11 @@ class Loader:
                     
                     model.coordinates.normal.append(normal)
                     
+                    #get vertex weight
+                    
+                    for vertexGroup in scene.objects[model.name].data.vertices[indices.vertex_index].groups:
+                        
+                        model.vertexGroupWeight.append(vertexGroup.weight)
                     
                     #get the index
                     model.coordinates.index.append(i)
@@ -222,8 +350,6 @@ class Loader:
                     model.coordinates.uv.append(self.r2d(uvCoordinates.uv))
                     model.hasUV=True
                     
-               
-                
                 #check if model has materials
                 
                 if(scene.objects[model.name].active_material):
@@ -257,12 +383,41 @@ class Loader:
                 
                 #get local matrix
                 matrix_local=scene.objects[model.name].matrix_local
-
+                
                 model.localSpace.append(matrix_local)
                 
+                #get vertex group index and name
+                #this data contains which bone affects which
+                for vertexGroups in scene.objects[model.name].vertex_groups:
+                    model.vertexGroupDict[vertexGroups.name]=vertexGroups.index
+                    
+                
+                #check if model has armature
+                armature=models.find_armature()
+            
+                if(armature!=None):
+                
+                    model.hasArmature=True
+                    
+                    modelArmature=Armature()
+    
+                    modelArmature.armatureObject=armature
+                    
+                    model.armature=modelArmature
+                    
+                    #copy the vertex group from the model to the armature
+                    model.armature.vertexGroupWeight=model.vertexGroupWeight
+                    
+                    #copy vertex group dictionary
+                    model.armature.vertexGroupDict=model.vertexGroupDict
+                    
+                    model.armature.setAllBones()
+                    
+                    model.armature.loadBonesInfo()
+                    
                 self.modelList.append(model)
                 
-                
+    
     def loadLights(self):
         pass
     
@@ -312,6 +467,7 @@ def main():
 
     loader=Loader()
     loader.loadModel()
+    
     loader.unloadData()
 
 if __name__ == '__main__':
