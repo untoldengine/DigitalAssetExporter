@@ -4,6 +4,8 @@ Created on Sep 25, 2014
 @author: haroldserrano
 '''
 import bpy
+import mathutils
+from math import radians
 
 class Materials:
     def __init__(self):
@@ -133,6 +135,11 @@ class Lights:
 
 class Camera:
     pass
+
+class World:
+    def __init__(self):
+        self.localMatrix=0
+        
   
 class Loader:
     def __init__(self):
@@ -161,6 +168,14 @@ class Loader:
         
         scene=bpy.context.scene
         
+        #get world matrix
+        world=World()
+        world.localMatrix=mathutils.Matrix.Identity(4)
+        world.localMatrix*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        world.localMatrix*=mathutils.Matrix.Rotation(radians(90), 4, "X")
+        world.localMatrix*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        
+        #get all models in the scene
         for models in scene.objects:
             
             if(models.type=="MESH"):
@@ -175,11 +190,25 @@ class Loader:
                     
                     #get vertices of model
                     
-                    model.coordinates.vertices.append(self.r3d(scene.objects[model.name].data.vertices[indices.vertex_index].co))
+                    vertex=scene.objects[model.name].data.vertices[indices.vertex_index].co
+                    
+                    #convert vertex to openGL coordinate
+                    vertex=world.localMatrix*vertex                
+                    
+                    vertex=self.r3d(vertex)
+                    
+                    model.coordinates.vertices.append(vertex)
                     
                     #get normal of model
-
-                    model.coordinates.normal.append(self.r3d(scene.objects[model.name].data.vertices[indices.vertex_index].normal))
+                    
+                    normal=scene.objects[model.name].data.vertices[indices.vertex_index].normal
+                    
+                    #convert normal to OpenGL coordinate
+                    normal=world.localMatrix*normal
+                    
+                    normal=self.r3d(normal)
+                    
+                    model.coordinates.normal.append(normal)
                     
                     
                     #get the index
