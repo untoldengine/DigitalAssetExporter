@@ -130,7 +130,7 @@ class Armature:
                 print("%f %f %f %f "%tuple(m.row[2]),end="")
                 print("%f %f %f %f"%tuple(m.row[3]),end="")
             
-            print("</bind_pose_pose_matrix>")
+            print("</bind_pose_matrix>")
             
             print("<inverse_bind_pose_matrix>",end="")
             for m in bone.inverseBindPoseMatrix:
