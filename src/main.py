@@ -15,19 +15,25 @@ class Bone:
         self.vertexGroupIndex=None
         self.localMatrix=[]
         self.inverseBindPoseMatrix=[]
+        self.bindPoseMatrix=[]
+        self.restPoseMatrix=[]
         self.vertexWeights=[]
         self.index=None
+        
     
 class Armature:
-    def __init__(self):
+    def __init__(self,world):
         self.name=None
         self.armatureObject=None
+        self.absoluteMatrix=None
+        self.localMatrix=None
         self.rootBone=None
         self.childrenBones=[]
         self.vertexGroupWeight=[]
         self.vertexGroupDict={}
         self.numberOfBones=None
         self.bones=[]
+        self.worldMatrix=world
         
     def setAllBones(self):
         
@@ -51,6 +57,9 @@ class Armature:
         #get total count of bones
         self.numberOfBones=len(self.childrenBones)
         
+        #get the armature absolute matrix
+        self.absoluteMatrix=self.armatureObject.matrix_world
+        
         for bones in self.childrenBones:
             
             bone=Bone()
@@ -64,7 +73,9 @@ class Armature:
                 
                 bone.localMatrix.append(bones.matrix_local)
                 bone.parent='root'
+                
             else:
+                
                 bone.localMatrix.append(bones.parent.matrix_local.inverted()*bones.matrix_local)
                 bone.parent=bones.parent.name
             
@@ -77,9 +88,22 @@ class Armature:
                 
                 bone.vertexWeights.append(self.vertexGroupWeight[bone.index+i])
                 
-                
-            #get bone bind inverse matrix
+            #get the bind pose matrix
+            bindPoseMatrix=self.armatureObject.pose.bones[bone.name].bone.matrix_local
             
+            bindPoseMatrix=self.absoluteMatrix*bindPoseMatrix
+            
+            bone.bindPoseMatrix.append(bindPoseMatrix)
+            
+            #get bone bind inverse matrix
+            inverseBindPoseMatrix=bindPoseMatrix.inverted()
+            
+            bone.inverseBindPoseMatrix.append(inverseBindPoseMatrix)
+            
+            #get rest pose matrix
+            restPoseMatrix=self.armatureObject.pose.bones[bone.name].matrix
+            
+            bone.restPoseMatrix.append(restPoseMatrix)
             
             #attach bone to armature class
             self.bones.append(bone)
@@ -99,10 +123,32 @@ class Armature:
                 print("%f %f %f %f"%tuple(m.row[3]),end="")
             print("</local_matrix>")
             
-            print("<inverse_bone_pose_matrix>",end="")
+            print("<bind_pose_matrix>",end="")
+            for m in bone.bindPoseMatrix:
+                print("%f %f %f %f "%tuple(m.row[0]),end="")
+                print("%f %f %f %f "%tuple(m.row[1]),end="")
+                print("%f %f %f %f "%tuple(m.row[2]),end="")
+                print("%f %f %f %f"%tuple(m.row[3]),end="")
             
-            print("</inverse_bone_pose_matrix>")
+            print("</bind_pose_pose_matrix>")
             
+            print("<inverse_bind_pose_matrix>",end="")
+            for m in bone.inverseBindPoseMatrix:
+                print("%f %f %f %f "%tuple(m.row[0]),end="")
+                print("%f %f %f %f "%tuple(m.row[1]),end="")
+                print("%f %f %f %f "%tuple(m.row[2]),end="")
+                print("%f %f %f %f"%tuple(m.row[3]),end="")
+                
+            print("</inverse_bind_pose_matrix>")
+            
+            print("<rest_pose_matrix>",end="")
+            for m in bone.restPoseMatrix:
+                print("%f %f %f %f "%tuple(m.row[0]),end="")
+                print("%f %f %f %f "%tuple(m.row[1]),end="")
+                print("%f %f %f %f "%tuple(m.row[2]),end="")
+                print("%f %f %f %f"%tuple(m.row[3]),end="")
+                
+            print("</rest_pose_matrix>")
             
             print("<vertex_weights>",end="")
             for vw in bone.vertexWeights:
@@ -135,7 +181,7 @@ class Textures:
         self.texture=''
 
 class Model:
-    def __init__(self):
+    def __init__(self,world):
         self.name=''
         self.hasUV=False
         self.hasMaterials=False
@@ -148,7 +194,8 @@ class Model:
         self.armature=None
         self.vertexGroupWeight=[] 
         self.vertexGroupDict={}   
-
+        self.worldMatrix=world
+        
     def unloadModelData(self):
         
         self.unloadCoordinates()
@@ -261,7 +308,7 @@ class Camera:
 
 class World:
     def __init__(self):
-        self.localMatrix=0
+        self.localMatrix=[]
         
   
 class Loader:
@@ -298,12 +345,13 @@ class Loader:
         world.localMatrix*=mathutils.Matrix.Rotation(radians(90), 4, "X")
         world.localMatrix*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
         
+        
         #get all models in the scene
         for models in scene.objects:
             
             if(models.type=="MESH"):
                 
-                model=Model()
+                model=Model(world)
                 
                 #get name of model
                 model.name=models.name
@@ -399,7 +447,7 @@ class Loader:
                 
                     model.hasArmature=True
                     
-                    modelArmature=Armature()
+                    modelArmature=Armature(world)
     
                     modelArmature.armatureObject=armature
                     
