@@ -33,7 +33,7 @@ class Armature:
         self.vertexGroupDict={}
         self.numberOfBones=None
         self.bones=[]
-        self.worldMatrix=world
+        self.world=world
         
     def setAllBones(self):
         
@@ -91,7 +91,7 @@ class Armature:
             #get the bind pose matrix
             bindPoseMatrix=self.armatureObject.pose.bones[bone.name].bone.matrix_local
             
-            bindPoseMatrix=self.absoluteMatrix*bindPoseMatrix
+            bindPoseMatrix=self.world.localMatrix*self.absoluteMatrix*bindPoseMatrix
             
             bone.bindPoseMatrix.append(bindPoseMatrix)
             
@@ -103,7 +103,8 @@ class Armature:
             #get rest pose matrix
             restPoseMatrix=self.armatureObject.pose.bones[bone.name].matrix
             
-            bone.restPoseMatrix.append(restPoseMatrix)
+           
+            bone.restPoseMatrix.append(self.world.localMatrix*self.absoluteMatrix*restPoseMatrix)
             
             #attach bone to armature class
             self.bones.append(bone)
