@@ -13,10 +13,11 @@ class Bone:
         self.parent=None
         self.boneObject=None
         self.vertexGroupIndex=None
-        self.localMatrix=[]
-        self.inverseBindPoseMatrix=[]
-        self.bindPoseMatrix=[]
-        self.restPoseMatrix=[]
+        self.localMatrix=None
+        self.absoluteMatrix=None
+        self.inverseBindPoseMatrix=None
+        self.bindPoseMatrix=None
+        self.restPoseMatrix=None
         self.vertexWeights=[]
         self.index=None
         
@@ -70,16 +71,58 @@ class Armature:
             #get bone local matrix
             
             if(bones.parent==None):
-                
-                bone.localMatrix.append(bones.matrix_local)
+                #set bone parent
                 bone.parent='root'
+                #set local matrix
+                bone.localMatrix=bones.matrix_local
+                #set absolute matrix
+                bone.absoluteMatrix=bones.matrix_local
+                #set bind pose
+                bone.bindPoseMatrix=bone.absoluteMatrix
+                #set inverse bind pose
+                bone.inverseBindPoseMatrix=bone.bindPoseMatrix.inverted()
+                #get rest pose matrix
+                bone.restPoseMatrix=self.armatureObject.pose.bones[bone.name].matrix
                 
+                print('Parent')
+                print('local matrix')
+                print(bone.localMatrix)
+                print('absolute matrix')
+                print(bone.absoluteMatrix)
+                print('bind pose matrix')
+                print(bone.bindPoseMatrix)
+                print('inverse matrix')
+                print(bone.inverseBindPoseMatrix)
+                print('rest pose matrix')
+                print(bone.restPoseMatrix)
+                #self.world.localMatrix*self.absoluteMatrix*
             else:
-                
-                bone.localMatrix.append(bones.parent.matrix_local.inverted()*bones.matrix_local)
+                #set bone parent
                 bone.parent=bones.parent.name
-            
-
+                #set local matrix
+                bone.localMatrix=bones.matrix_local
+                #set absolute matrix
+                bone.absoluteMatrix=bones.parent.matrix_local.inverted()*bone.localMatrix
+                #set bind pose
+                bone.bindPoseMatrix=bone.absoluteMatrix
+                #set bind pose inverse
+                bone.inverseBindPoseMatrix=bone.bindPoseMatrix.inverted()
+                #get rest pose matrix
+                bone.restPoseMatrix=self.armatureObject.pose.bones[bone.name].matrix
+                        
+                print('Child')
+                print('local matrix')
+                print(bone.localMatrix)
+                print('absolute matrix')
+                print(bone.absoluteMatrix)
+                print('bind pose matrix')
+                print(bone.bindPoseMatrix)
+                print('inverse matrix')
+                print(bone.inverseBindPoseMatrix)
+                print('rest pose matrix')
+                print(bone.restPoseMatrix)
+            #bone.localMatrix.append(self.world.localMatrix*self.absoluteMatrix*bones.matrix_local)
+                        
             #look for the vertex group
             bone.index=self.vertexGroupDict[bone.name]
             
@@ -88,24 +131,7 @@ class Armature:
                 
                 bone.vertexWeights.append(self.vertexGroupWeight[bone.index+i])
                 
-            #get the bind pose matrix
-            bindPoseMatrix=self.armatureObject.pose.bones[bone.name].bone.matrix_local
-            
-            bindPoseMatrix=self.world.localMatrix*self.absoluteMatrix*bindPoseMatrix
-            
-            bone.bindPoseMatrix.append(bindPoseMatrix)
-            
-            #get bone bind inverse matrix
-            inverseBindPoseMatrix=bindPoseMatrix.inverted()
-            
-            bone.inverseBindPoseMatrix.append(inverseBindPoseMatrix)
-            
-            #get rest pose matrix
-            restPoseMatrix=self.armatureObject.pose.bones[bone.name].matrix
-            
-           
-            bone.restPoseMatrix.append(self.world.localMatrix*self.absoluteMatrix*restPoseMatrix)
-            
+              
             #attach bone to armature class
             self.bones.append(bone)
 
