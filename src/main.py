@@ -19,6 +19,10 @@ class Bone:
         self.bindPoseMatrix=None
         self.restPoseMatrix=None
         self.vertexWeights=[]
+        self.localMatrixList=[]
+        self.inverseBindPoseMatrixList=[]
+        self.bindPoseMatrixList=[]
+        self.restPoseMatrixList=[]
         self.index=None
         
     
@@ -131,8 +135,14 @@ class Armature:
                 
                 bone.vertexWeights.append(self.vertexGroupWeight[bone.index+i])
                 
+            #append matrix data to list
+            bone.localMatrixList.append(self.world.localMatrix*self.absoluteMatrix*bone.localMatrix)
+            bone.bindPoseMatrixList.append(self.world.localMatrix*self.absoluteMatrix*bone.bindPoseMatrix)
+            bone.inverseBindPoseMatrixList.append(self.world.localMatrix*self.absoluteMatrix*bone.inverseBindPoseMatrix)
+            bone.restPoseMatrixList.append(self.world.localMatrix*self.absoluteMatrix*bone.restPoseMatrix)
               
             #attach bone to armature class
+            
             self.bones.append(bone)
 
     def unloadBones(self):
@@ -143,7 +153,7 @@ class Armature:
             print()
             print("<bone name=\"%s\" parent=\"%s\">"%(bone.name,bone.parent))
             print("<local_matrix>",end="")
-            for m in bone.localMatrix:
+            for m in bone.localMatrixList:
                 print("%f %f %f %f "%tuple(m.row[0]),end="")
                 print("%f %f %f %f "%tuple(m.row[1]),end="")
                 print("%f %f %f %f "%tuple(m.row[2]),end="")
@@ -151,7 +161,7 @@ class Armature:
             print("</local_matrix>")
             
             print("<bind_pose_matrix>",end="")
-            for m in bone.bindPoseMatrix:
+            for m in bone.bindPoseMatrixList:
                 print("%f %f %f %f "%tuple(m.row[0]),end="")
                 print("%f %f %f %f "%tuple(m.row[1]),end="")
                 print("%f %f %f %f "%tuple(m.row[2]),end="")
@@ -160,7 +170,7 @@ class Armature:
             print("</bind_pose_matrix>")
             
             print("<inverse_bind_pose_matrix>",end="")
-            for m in bone.inverseBindPoseMatrix:
+            for m in bone.inverseBindPoseMatrixList:
                 print("%f %f %f %f "%tuple(m.row[0]),end="")
                 print("%f %f %f %f "%tuple(m.row[1]),end="")
                 print("%f %f %f %f "%tuple(m.row[2]),end="")
@@ -169,7 +179,7 @@ class Armature:
             print("</inverse_bind_pose_matrix>")
             
             print("<rest_pose_matrix>",end="")
-            for m in bone.restPoseMatrix:
+            for m in bone.restPoseMatrixList:
                 print("%f %f %f %f "%tuple(m.row[0]),end="")
                 print("%f %f %f %f "%tuple(m.row[1]),end="")
                 print("%f %f %f %f "%tuple(m.row[2]),end="")
