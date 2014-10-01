@@ -78,9 +78,9 @@ class Armature:
                 #set bone parent
                 bone.parent='root'
                 #set local matrix
-                bone.localMatrix=bones.matrix_local
+                bone.localMatrix=self.world.localMatrix*self.absoluteMatrix*bones.matrix_local
                 #set absolute matrix
-                bone.absoluteMatrix=bones.matrix_local
+                bone.absoluteMatrix=bone.localMatrix
                 #set bind pose
                 bone.bindPoseMatrix=bone.absoluteMatrix
                 #set inverse bind pose
@@ -88,23 +88,12 @@ class Armature:
                 #get rest pose matrix
                 bone.restPoseMatrix=self.armatureObject.pose.bones[bone.name].matrix
                 
-                print('Parent')
-                print('local matrix')
-                print(bone.localMatrix)
-                print('absolute matrix')
-                print(bone.absoluteMatrix)
-                print('bind pose matrix')
-                print(bone.bindPoseMatrix)
-                print('inverse matrix')
-                print(bone.inverseBindPoseMatrix)
-                print('rest pose matrix')
-                print(bone.restPoseMatrix)
-                #self.world.localMatrix*self.absoluteMatrix*
+                
             else:
                 #set bone parent
                 bone.parent=bones.parent.name
                 #set local matrix
-                bone.localMatrix=bones.matrix_local
+                bone.localMatrix=self.world.localMatrix*self.absoluteMatrix*bones.matrix_local
                 #set absolute matrix
                 bone.absoluteMatrix=bones.parent.matrix_local.inverted()*bone.localMatrix
                 #set bind pose
@@ -112,20 +101,8 @@ class Armature:
                 #set bind pose inverse
                 bone.inverseBindPoseMatrix=bone.bindPoseMatrix.inverted()
                 #get rest pose matrix
-                bone.restPoseMatrix=self.armatureObject.pose.bones[bone.name].matrix
+                bone.restPoseMatrix=self.armatureObject.pose.bones[bone.name].parent.matrix.inverted()*self.armatureObject.pose.bones[bone.name].matrix
                         
-                print('Child')
-                print('local matrix')
-                print(bone.localMatrix)
-                print('absolute matrix')
-                print(bone.absoluteMatrix)
-                print('bind pose matrix')
-                print(bone.bindPoseMatrix)
-                print('inverse matrix')
-                print(bone.inverseBindPoseMatrix)
-                print('rest pose matrix')
-                print(bone.restPoseMatrix)
-            #bone.localMatrix.append(self.world.localMatrix*self.absoluteMatrix*bones.matrix_local)
                         
             #look for the vertex group
             bone.index=self.vertexGroupDict[bone.name]
@@ -136,9 +113,9 @@ class Armature:
                 bone.vertexWeights.append(self.vertexGroupWeight[bone.index+i])
                 
             #append matrix data to list
-            bone.localMatrixList.append(self.world.localMatrix*self.absoluteMatrix*bone.localMatrix)
-            bone.bindPoseMatrixList.append(self.world.localMatrix*self.absoluteMatrix*bone.bindPoseMatrix)
-            bone.inverseBindPoseMatrixList.append(self.world.localMatrix*self.absoluteMatrix*bone.inverseBindPoseMatrix)
+            bone.localMatrixList.append(bone.localMatrix)
+            bone.bindPoseMatrixList.append(bone.bindPoseMatrix)
+            bone.inverseBindPoseMatrixList.append(bone.inverseBindPoseMatrix)
             bone.restPoseMatrixList.append(self.world.localMatrix*self.absoluteMatrix*bone.restPoseMatrix)
               
             #attach bone to armature class
