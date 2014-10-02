@@ -404,13 +404,13 @@ class Loader:
                     #get the index
                     model.coordinates.index.append(i)
                 
-                
-                for uvCoordinates in scene.objects[model.name].data.uv_layers.active.data:
-                    
-                    #get uv coordinates of model                    
-
-                    model.coordinates.uv.append(self.r2d(uvCoordinates.uv))
-                    model.hasUV=True
+                if(scene.objects[model.name].data.uv_layers):
+                    for uvCoordinates in scene.objects[model.name].data.uv_layers.active.data:
+                        
+                        #get uv coordinates of model                    
+    
+                        model.coordinates.uv.append(self.r2d(uvCoordinates.uv))
+                        model.hasUV=True
                     
                 #check if model has materials
                 
