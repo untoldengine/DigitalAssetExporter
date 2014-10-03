@@ -78,13 +78,13 @@ class Armature:
                 #set bone parent
                 bone.parent='root'
                 #set local matrix
-                bone.localMatrix=self.world.localMatrix*self.absoluteMatrix*bones.matrix_local
+                bone.localMatrix=bones.matrix_local
                 #set absolute matrix
                 bone.absoluteMatrix=bone.localMatrix
                 #set bind pose
                 bone.bindPoseMatrix=bone.absoluteMatrix
                 #set inverse bind pose
-                bone.inverseBindPoseMatrix=self.absoluteMatrix*bones.matrix_local.inverted()
+                bone.inverseBindPoseMatrix=bones.matrix_local.inverted()
                 #get rest pose matrix
                 bone.restPoseMatrix=self.armatureObject.pose.bones[bone.name].matrix
                 
@@ -93,13 +93,13 @@ class Armature:
                 #set bone parent
                 bone.parent=bones.parent.name
                 #set local matrix
-                bone.localMatrix=self.world.localMatrix*self.absoluteMatrix*bones.matrix_local
+                bone.localMatrix=bones.matrix_local
                 #set absolute matrix
                 bone.absoluteMatrix=bones.parent.matrix_local.inverted()*bone.localMatrix
                 #set bind pose
                 bone.bindPoseMatrix=bone.absoluteMatrix
                 #set bind pose inverse
-                bone.inverseBindPoseMatrix=self.absoluteMatrix*bones.matrix_local.inverted()
+                bone.inverseBindPoseMatrix=bones.matrix_local.inverted()
                 #get rest pose matrix
                 bone.restPoseMatrix=self.armatureObject.pose.bones[bone.name].parent.matrix.inverted()*self.armatureObject.pose.bones[bone.name].matrix
                        
@@ -397,10 +397,14 @@ class Loader:
                     
                     #get vertex weight
                     
+                    vertexGroupWeightDict={}  #create a dictionary for the weights
+                    
                     for vertexGroup in scene.objects[model.name].data.vertices[indices.vertex_index].groups:
                         
-                        model.vertexGroupWeight.append(vertexGroup.weight)
-                    
+                        vertexGroupWeightDict[vertexGroup.group]=vertexGroup.weight
+                        
+                    model.vertexGroupWeight.append(vertexGroupWeightDict)
+                        
                     #get the index
                     model.coordinates.index.append(i)
                 
@@ -448,8 +452,7 @@ class Loader:
                 
                 model.localSpace.append(matrix_local)
                 
-                #get vertex group index and name
-                #this data contains which bone affects which
+                #get all the vertex groups affecting the object
                 for vertexGroups in scene.objects[model.name].vertex_groups:
                     model.vertexGroupDict[vertexGroups.name]=vertexGroups.index
                     
@@ -468,7 +471,18 @@ class Loader:
                     model.armature=modelArmature
                     
                     #copy the vertex group from the model to the armature
-                    model.armature.vertexGroupWeight=model.vertexGroupWeight
+                    
+                    #go throught the vertexGroupWeight, get the dictionary
+                    # and fill in with zero any vertex group that does not exist
+                    # then append the data to model.armature.vertexGroupWeight
+                    
+                    for n in model.vertexGroupWeight:
+                        for j in range(0,len(model.vertexGroupDict)):
+                            if(n.get(j) is None):
+                                model.armature.vertexGroupWeight.append(0.0)
+                            else:
+                                model.armature.vertexGroupWeight.append(n.get(j))
+                                
                     
                     #copy vertex group dictionary
                     model.armature.vertexGroupDict=model.vertexGroupDict
