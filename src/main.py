@@ -599,7 +599,7 @@ class Loader:
                     
                     #set name
                     model.armature.name=armature.name
-                    print(model.armature.name)
+                    
                     #copy the vertex group from the model to the armature
                     
                     #go throught the vertexGroupWeight, get the dictionary
