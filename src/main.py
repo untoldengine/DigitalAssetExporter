@@ -5,8 +5,25 @@ Created on Sep 25, 2014
 '''
 import bpy
 import mathutils
+import operator
+import copy
 from math import radians
 
+class Animation:
+    def __init__(self):
+        self.name=None
+        self.keyframes=[]
+    
+class Keyframe:
+    def __init__(self):
+        self.time=None
+        self.animationBonePoses=[]
+
+class AnimationBonePoses:
+    def __init__(self):
+        self.name=None
+        self.pose=[]    
+    
 class Bone:
     def __init__(self):
         self.name=None
@@ -38,6 +55,8 @@ class Armature:
         self.vertexGroupDict={}
         self.numberOfBones=None
         self.bones=[]
+        self.animations=[]
+        self.has_animation=False
         self.world=world
         
     def setAllBones(self):
@@ -113,10 +132,10 @@ class Armature:
                 bone.vertexWeights.append(self.vertexGroupWeight[bone.index+i])
                 
             #append matrix data to list
-            bone.localMatrixList.append(bone.localMatrix)
-            bone.bindPoseMatrixList.append(bone.bindPoseMatrix)
-            bone.inverseBindPoseMatrixList.append(bone.inverseBindPoseMatrix)
-            bone.restPoseMatrixList.append(bone.restPoseMatrix)
+            bone.localMatrixList.append(copy.copy(bone.localMatrix))
+            bone.bindPoseMatrixList.append(copy.copy(bone.bindPoseMatrix))
+            bone.inverseBindPoseMatrixList.append(copy.copy(bone.inverseBindPoseMatrix))
+            bone.restPoseMatrixList.append(copy.copy(bone.restPoseMatrix))
              
             #attach bone to armature class
             
@@ -175,6 +194,110 @@ class Armature:
         print("</armature>")
         
         print()
+    
+    def frameToTime(self,frame):
+        fps=bpy.context.scene.render.fps
+        rawTime=frame/fps
+        return round(rawTime,3)
+        
+        
+    def setAnimations(self):
+        
+        actions=bpy.data.actions
+        
+        scene=bpy.context.scene
+        
+        if(len(actions)>0):
+            
+            self.has_animation=True
+            
+            for action in actions:
+                #create an animation object
+                
+                animation=Animation()
+                animation.name=action.name
+                
+                #create a keyframe dictionary needed to store and then sort the keyframes
+                keyframeDict={}
+                
+                
+                for fcurves in action.fcurves:
+                    for keyframe in fcurves.keyframe_points:
+                        
+                        #check if the keyframe exist
+                        if(keyframeDict.get(keyframe.co[0]) is None):
+                        
+                            keyframeDict[keyframe.co[0]]=keyframe.co[0]
+                
+                #sort the dictionary
+                sortedKeyframes=sorted(keyframeDict.items(),key=operator.itemgetter(0))
+                
+                #get keyframes in sorted ascending order
+                for keyframes in sortedKeyframes:
+                    
+                    #for each keyframe, create an object
+                    keyframe=Keyframe()
+                    #set the keyframe time
+                    keyframe.time=self.frameToTime(keyframes[1])
+                    
+                    #set the scene to the keyframe
+                    scene.frame_set(keyframes[1])
+                    #update the scene
+                    
+                    #get the pose for each bone at that timeline
+                    for bones in self.childrenBones:
+                        
+                        animationBonePose=AnimationBonePoses()
+                        animationBonePose.name=bones.name
+                        
+                        if(bones.parent==None):
+                            animationBonePose.pose.append(copy.copy(self.armatureObject.pose.bones[bones.name].matrix))
+                            
+                        else:
+                            animationBonePose.pose.append(copy.copy(self.armatureObject.pose.bones[bones.name].parent.matrix.inverted()*self.armatureObject.pose.bones[bones.name].matrix))
+                        
+                        keyframe.animationBonePoses.append(animationBonePose)
+                        
+                    
+                    #append the keyframes to the animation
+                    animation.keyframes.append(keyframe)
+                
+                #append the animation to the armature
+                self.animations.append(animation)    
+                    
+    
+    def unloadAnimations(self):
+        
+        if(self.has_animation is True):
+            
+            print("<animations>")
+            for animation in self.animations:
+                #print animations
+                print("<animation name=\"%s\">"%animation.name)
+                
+                for keyframe in animation.keyframes:
+                    
+                    #print keyframe time
+                    print("<keyframe time=\"%f\">"%keyframe.time)
+                    
+                    for bonePoses in keyframe.animationBonePoses:
+                        
+                        #print bone poses
+                        print("<pose_matrix name=\"%s\">"%bonePoses.name,end="")
+                        
+                        for m in bonePoses.pose:
+                            print("%f %f %f %f "%tuple(m.row[0]),end="")
+                            print("%f %f %f %f "%tuple(m.row[1]),end="")
+                            print("%f %f %f %f "%tuple(m.row[2]),end="")
+                            print("%f %f %f %f"%tuple(m.row[3]),end="")
+                        
+                        print("</pose_matrix>")
+                        
+                    print("</keyframe>")
+                
+                print("</animation>")
+            print("</animations>")             
+            
 
 class Materials:
     def __init__(self):
@@ -217,6 +340,7 @@ class Model:
         self.unloadTexture()
         self.unloadLocalSpace()
         self.unloadArmature()
+        self.unloadAnimations()
     
     def unloadCoordinates(self):
         
@@ -313,6 +437,9 @@ class Model:
     
     def setArmature(self):
         self.armature.setRootBone()
+        
+    def unloadAnimations(self):
+        self.armature.unloadAnimations()
         
 class Lights:
     pass
@@ -470,6 +597,9 @@ class Loader:
                     
                     model.armature=modelArmature
                     
+                    #set name
+                    model.armature.name=armature.name
+                    print(model.armature.name)
                     #copy the vertex group from the model to the armature
                     
                     #go throught the vertexGroupWeight, get the dictionary
@@ -490,6 +620,8 @@ class Loader:
                     model.armature.setAllBones()
                     
                     model.armature.loadBonesInfo()
+                    
+                    model.armature.setAnimations()
                     
                 self.modelList.append(model)
                 
@@ -540,7 +672,10 @@ class Loader:
 def main():
 
 #bpy.context.scene.objects['Cube'].data.uv_layers.active.data[0].uv
-
+    #set scene to frame zero
+    scene=bpy.context.scene
+    scene.frame_set(0)
+    
     loader=Loader()
     loader.loadModel()
     
