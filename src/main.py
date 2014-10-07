@@ -13,6 +13,7 @@ class Animation:
     def __init__(self):
         self.name=None
         self.keyframes=[]
+        self.fps=None
     
 class Keyframe:
     def __init__(self):
@@ -216,6 +217,7 @@ class Armature:
                 
                 animation=Animation()
                 animation.name=action.name
+                animation.fps=bpy.context.scene.render.fps
                 
                 #create a keyframe dictionary needed to store and then sort the keyframes
                 keyframeDict={}
@@ -273,7 +275,7 @@ class Armature:
             print("<animations>")
             for animation in self.animations:
                 #print animations
-                print("<animation name=\"%s\">"%animation.name)
+                print("<animation name=\"%s\" fps=\"%f\">"%(animation.name,animation.fps))
                 
                 for keyframe in animation.keyframes:
                     
