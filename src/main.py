@@ -59,6 +59,8 @@ class Armature:
         self.animations=[]
         self.has_animation=False
         self.world=world
+        self.bindShapeMatrix=[]
+        
         
     def setAllBones(self):
         
@@ -84,6 +86,8 @@ class Armature:
         
         #get the armature absolute matrix
         self.absoluteMatrix=self.armatureObject.matrix_world
+        
+        
         
         for bones in self.childrenBones:
             
@@ -122,8 +126,7 @@ class Armature:
                 bone.inverseBindPoseMatrix=bones.matrix_local.inverted()
                 #get rest pose matrix
                 bone.restPoseMatrix=self.armatureObject.pose.bones[bone.name].parent.matrix.inverted()*self.armatureObject.pose.bones[bone.name].matrix
-                       
-                        
+                
             #look for the vertex group
             bone.index=self.vertexGroupDict[bone.name]
             
@@ -145,6 +148,14 @@ class Armature:
     def unloadBones(self):
         
         print("<armature>",end="")
+        print()
+        print("<bind_shape_matrix>",end="")
+        for m in self.bindShapeMatrix:
+            print("%f %f %f %f "%tuple(m.row[0]),end="")
+            print("%f %f %f %f "%tuple(m.row[1]),end="")
+            print("%f %f %f %f "%tuple(m.row[2]),end="")
+            print("%f %f %f %f"%tuple(m.row[3]),end="")
+        print("</bind_shape_matrix>")
         
         for bone in self.bones:
             print()
@@ -581,6 +592,9 @@ class Loader:
                 
                 model.localSpace.append(matrix_local)
                 
+                #get absolute matrix
+                model.absoluteSpace.append(world.localMatrix*scene.objects[model.name].matrix_world)
+                
                 #get all the vertex groups affecting the object
                 for vertexGroups in scene.objects[model.name].vertex_groups:
                     model.vertexGroupDict[vertexGroups.name]=vertexGroups.index
@@ -601,6 +615,9 @@ class Loader:
                     
                     #set name
                     model.armature.name=armature.name
+                    
+                    #set Bind Shape Matrix
+                    model.armature.bindShapeMatrix=model.absoluteSpace
                     
                     #copy the vertex group from the model to the armature
                     
