@@ -263,6 +263,7 @@ class Armature:
                         animationBonePose=AnimationBonePoses()
                         animationBonePose.name=bones.name
                         
+                         
                         if(bones.parent==None):
                             animationBonePose.pose.append(copy.copy(self.armatureObject.pose.bones[bones.name].matrix))
                             
@@ -356,7 +357,7 @@ class Model:
         self.unloadAnimations()
     
     def unloadCoordinates(self):
-        
+                
         print("<vertices>",end="")
             
         for i in range(0,len(self.coordinates.vertices)):
@@ -452,7 +453,9 @@ class Model:
         self.armature.setRootBone()
         
     def unloadAnimations(self):
-        self.armature.unloadAnimations()
+        
+        if(self.hasArmature):
+            self.armature.unloadAnimations()
         
 class Lights:
     pass
@@ -494,11 +497,11 @@ class Loader:
         
         #get world matrix
         world=World()
+        #convert world to opengl coords
         world.localMatrix=mathutils.Matrix.Identity(4)
         world.localMatrix*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
         world.localMatrix*=mathutils.Matrix.Rotation(radians(90), 4, "X")
         world.localMatrix*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
-        
         
         #get all models in the scene
         for models in scene.objects:
@@ -510,6 +513,14 @@ class Loader:
                 #get name of model
                 model.name=models.name
                 
+                #get local matrix
+                matrix_local=world.localMatrix*scene.objects[model.name].matrix_local
+                
+                model.localSpace.append(matrix_local)
+                
+                #get absolute matrix
+                model.absoluteSpace.append(scene.objects[model.name].matrix_world)
+                
                  #get index of model
                 for i,indices in enumerate(scene.objects[model.name].data.loops):
                     
@@ -518,7 +529,7 @@ class Loader:
                     vertex=scene.objects[model.name].data.vertices[indices.vertex_index].co
                     
                     #convert vertex to openGL coordinate
-                    vertex=world.localMatrix*vertex                
+                    vertex=scene.objects[model.name].matrix_local*vertex                
                     
                     vertex=self.r3d(vertex)
                     
@@ -529,7 +540,7 @@ class Loader:
                     normal=scene.objects[model.name].data.vertices[indices.vertex_index].normal
                     
                     #convert normal to OpenGL coordinate
-                    normal=world.localMatrix*normal
+                    normal=scene.objects[model.name].matrix_local*normal
                     
                     normal=self.r3d(normal)
                     
@@ -587,13 +598,7 @@ class Loader:
                     
                     model.texture=texture
                 
-                #get local matrix
-                matrix_local=scene.objects[model.name].matrix_local
                 
-                model.localSpace.append(matrix_local)
-                
-                #get absolute matrix
-                model.absoluteSpace.append(world.localMatrix*scene.objects[model.name].matrix_world)
                 
                 #get all the vertex groups affecting the object
                 for vertexGroups in scene.objects[model.name].vertex_groups:
@@ -617,7 +622,7 @@ class Loader:
                     model.armature.name=armature.name
                     
                     #set Bind Shape Matrix
-                    model.armature.bindShapeMatrix=model.absoluteSpace
+                    model.armature.bindShapeMatrix.append(scene.objects[model.name].matrix_world)
                     
                     #copy the vertex group from the model to the armature
                     
