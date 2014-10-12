@@ -57,7 +57,7 @@ class Armature:
         self.numberOfBones=None
         self.bones=[]
         self.animations=[]
-        self.has_animation=False
+        self.hasAnimation=False
         self.world=world
         self.bindShapeMatrix=[]
         
@@ -216,7 +216,7 @@ class Armature:
         
         if(len(actions)>0):
             
-            self.has_animation=True
+            self.hasAnimation=True
             
             for action in actions:
                 #create an animation object
@@ -277,7 +277,7 @@ class Armature:
     
     def unloadAnimations(self):
         
-        if(self.has_animation is True):
+        if(self.hasAnimation is True):
             
             print("<animations>")
             for animation in self.animations:
@@ -332,6 +332,7 @@ class Model:
         self.hasUV=False
         self.hasMaterials=False
         self.hasArmature=False
+        self.hasAnimation=False
         self.coordinates=Coordinates()
         self.materials=Materials()
         self.texture=Textures()
@@ -449,7 +450,7 @@ class Model:
         
     def unloadAnimations(self):
         
-        if(self.hasArmature):
+        if(self.armature.hasAnimation):
             self.armature.unloadAnimations()
         
 class Lights:
