@@ -109,8 +109,6 @@ class Armature:
                 bone.bindPoseMatrix=bone.absoluteMatrix
                 #set inverse bind pose
                 bone.inverseBindPoseMatrix=bones.matrix_local.inverted()
-                #get rest pose matrix
-                bone.restPoseMatrix=self.armatureObject.pose.bones[bone.name].matrix
                 
                 
             else:
@@ -124,8 +122,6 @@ class Armature:
                 bone.bindPoseMatrix=bone.absoluteMatrix
                 #set bind pose inverse
                 bone.inverseBindPoseMatrix=bones.matrix_local.inverted()
-                #get rest pose matrix
-                bone.restPoseMatrix=self.armatureObject.pose.bones[bone.name].parent.matrix.inverted()*self.armatureObject.pose.bones[bone.name].matrix
                 
             #look for the vertex group
             bone.index=self.vertexGroupDict[bone.name]
@@ -139,8 +135,7 @@ class Armature:
             bone.localMatrixList.append(copy.copy(bone.localMatrix))
             bone.bindPoseMatrixList.append(copy.copy(bone.bindPoseMatrix))
             bone.inverseBindPoseMatrixList.append(copy.copy(bone.inverseBindPoseMatrix))
-            bone.restPoseMatrixList.append(copy.copy(bone.restPoseMatrix))
-             
+            
             #attach bone to armature class
             
             self.bones.append(bone)
