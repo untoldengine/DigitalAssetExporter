@@ -9,6 +9,39 @@ import operator
 import copy
 from math import radians
 
+
+class PointLights:
+    def __init__(self):
+        self.name=None
+        self.falloffDistance=None
+        self.energy=None
+        self.linearAttenuation=None
+        self.quadraticAttenuation=None
+        self.localSpace=[]
+        self.color=[]
+        
+    def unloadPointLightData(self):
+        
+        print("<falloff_distance>%f</falloff_distance>"%self.falloffDistance)
+        print("<energy>%f</energy>"%self.energy)
+        print("<linear_attenuation>%f</linear_attenuation>"%self.linearAttenuation)
+        print("<quadratic_attenuation>%f</quadratic_attenuation>"%self.quadraticAttenuation)
+        
+        print("<light_color>",end="")
+        for s in self.color:
+            print("%f %f %f 1.0"%tuple(s),end="")
+        print("</light_color>") 
+        
+        print("<local_matrix>",end="")
+        for m in self.localSpace:
+            print("%f %f %f %f "%tuple(m.row[0]),end="")
+            print("%f %f %f %f "%tuple(m.row[1]),end="")
+            print("%f %f %f %f "%tuple(m.row[2]),end="")
+            print("%f %f %f %f"%tuple(m.row[3]),end="")
+        print("</local_matrix>")
+        
+        
+    
 class Animation:
     def __init__(self):
         self.name=None
@@ -467,6 +500,9 @@ class World:
 class Loader:
     def __init__(self):
         self.modelList=[]
+        self.pointLightsList=[]
+        self.cameraList=[]
+        self.world=None
         
     def r3d(self,v):
         return round(v[0],6), round(v[1],6), round(v[2],6)
@@ -479,12 +515,12 @@ class Loader:
     def start(self):
         
         self.loadModel()
-        self.loadLights()
+        self.loadPointLights()
         self.loadCamera()
         
     def writeToFile(self):
         self.unloadModel()
-        self.unloadLights()
+        self.unloadPointLights()
         self.unloadCamera()
     
     def loadModel(self):
@@ -498,6 +534,8 @@ class Loader:
         world.localMatrix*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
         world.localMatrix*=mathutils.Matrix.Rotation(radians(90), 4, "X")
         world.localMatrix*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        
+        self.world=world
         
         #get all models in the scene
         for models in scene.objects:
@@ -646,8 +684,39 @@ class Loader:
                 self.modelList.append(model)
                 
     
-    def loadLights(self):
-        pass
+    def loadPointLights(self):
+        
+        scene=bpy.context.scene
+        
+         #get all lights in the scene
+        for lights in scene.objects:
+            
+            if(lights.type=="LAMP"):
+                
+                light=PointLights()
+                
+                light.name=lights.name
+                
+                #light color
+                light.color.append(scene.objects[light.name].data.color)
+                
+                #Light energy
+                light.energy=scene.objects[light.name].data.energy
+                
+                #light fall off distance
+                light.falloffDistance=scene.objects[light.name].data.distance
+                
+                #light linear attenuation
+                light.linearAttenuation=scene.objects[light.name].data.linear_attenuation
+                
+                #light quadratic attenuation
+                light.quadraticAttenuation=scene.objects[light.name].data.quadratic_attenuation
+                
+                #light local space
+                light.localSpace.append(self.world.localMatrix*scene.objects[light.name].matrix_local)
+                
+                #append the lights to the list
+                self.pointLightsList.append(light)
     
     def loadCamera(self):
         pass
@@ -660,7 +729,7 @@ class Loader:
         print("<asset>")
         
         self.unloadModel()
-        
+        self.unloadPointLights()
         
         print("</asset>")
         
@@ -682,10 +751,22 @@ class Loader:
             print()
         
         print("</meshes>")
-    
-    def unloadLights(self):
-        pass
-    
+        print()
+        
+    def unloadPointLights(self):
+        
+        print("<point_lights>")
+        print()
+        for lights in self.pointLightsList:
+            print("<point_light name=\"%s\">"%lights.name)
+            
+            lights.unloadPointLightData()
+            
+            print("</point_light>")
+        
+        print("</point_lights>")
+        
+        print()
     def unloadCamera(self):
         pass
     
@@ -698,8 +779,10 @@ def main():
     
     loader=Loader()
     loader.loadModel()
+    loader.loadPointLights()
     
     loader.unloadData()
+    
 
 if __name__ == '__main__':
     main()
