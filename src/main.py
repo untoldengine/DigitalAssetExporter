@@ -483,8 +483,9 @@ class Model:
         
     def unloadAnimations(self):
         
-        if(self.armature.hasAnimation):
-            self.armature.unloadAnimations()
+        if(self.hasArmature):
+            if(self.armature.hasAnimation):
+                self.armature.unloadAnimations()
         
 class Lights:
     pass
@@ -756,14 +757,14 @@ class Loader:
     def unloadPointLights(self):
         
         print("<point_lights>")
-        print()
         for lights in self.pointLightsList:
+            print()
             print("<point_light name=\"%s\">"%lights.name)
             
             lights.unloadPointLightData()
             
             print("</point_light>")
-        
+            print()
         print("</point_lights>")
         
         print()
