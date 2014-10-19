@@ -730,7 +730,7 @@ class Loader:
         print("<asset>")
         
         self.unloadModel()
-        self.unloadPointLights()
+        #self.unloadPointLights()
         
         print("</asset>")
         
@@ -780,7 +780,7 @@ def main():
     
     loader=Loader()
     loader.loadModel()
-    loader.loadPointLights()
+    #loader.loadPointLights()
     
     loader.unloadData()
     
