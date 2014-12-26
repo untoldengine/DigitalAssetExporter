@@ -362,6 +362,8 @@ class Textures:
 class Model:
     def __init__(self,world):
         self.name=''
+        self.vertexCount=''
+        self.indexCount=''
         self.hasUV=False
         self.hasMaterials=False
         self.hasArmature=False
@@ -743,7 +745,7 @@ class Loader:
         
         for model in self.modelList:
             
-            print("<mesh name=\"%s\">"%model.name)
+            print("<mesh name=\"%s\" vertex_count=\"%d\" index_count=\"%d\">"%(model.name,len(model.coordinates.vertices),len(model.coordinates.index)))
             
             model.unloadModelData()
             
