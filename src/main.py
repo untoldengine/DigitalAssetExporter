@@ -93,7 +93,17 @@ class Armature:
         self.hasAnimation=False
         self.world=world
         self.bindShapeMatrix=[]
+        self.accumulatedParentMatrix=[]
+        self.listOfParents=[]
         
+    def getListOfParents(self,bone):
+        
+        if(bone.parent==None):
+            #self.listOfParents.append(bone.name)
+            return 1
+        else:
+            self.listOfParents.append(bone.parent)
+            self.getListOfParents(bone.parent)
         
     def setAllBones(self):
         
@@ -121,7 +131,6 @@ class Armature:
         self.absoluteMatrix=self.armatureObject.matrix_world
         
         
-        
         for bones in self.childrenBones:
             
             bone=Bone()
@@ -145,12 +154,39 @@ class Armature:
                 
                 
             else:
+                
+                #clear the list
+                self.listOfParents.clear()
+                self.accumulatedParentMatrix=mathutils.Matrix.Identity(4)
                 #set bone parent
                 bone.parent=bones.parent.name
                 #set local matrix
                 bone.localMatrix=bones.matrix_local
                 #set absolute matrix
-                bone.absoluteMatrix=bones.parent.matrix_local.inverted()*bone.localMatrix
+                
+                self.getListOfParents(bones)
+                self.listOfParents.reverse()
+                
+                #the following for loops gets the right pose matrix for each parent of the current bone.
+                #here is a pseudo example of what is happening
+                #if(k==1): //bone 1..not root bone
+                  #  bone.absoluteMatrix=bones.parent.matrix_local.inverted()*bones.matrix_local
+                    
+                    
+                 #   grandPapMatrix=bones.parent.matrix_local.inverted()*bones.matrix_local
+                    
+                #if(k==2): //bone 2
+                #    bone.absoluteMatrix=grandPapMatrix.inverted()*bones.matrix_local
+                
+                for parentBones in self.listOfParents:
+                    
+                    self.accumulatedParentMatrix=self.accumulatedParentMatrix*parentBones.matrix_local
+                    
+                    self.accumulatedParentMatrix=self.accumulatedParentMatrix.inverted()
+                    
+                
+                bone.absoluteMatrix=self.accumulatedParentMatrix*bones.matrix_local
+                
                 #set bind pose
                 bone.bindPoseMatrix=bone.absoluteMatrix
                 #set bind pose inverse
