@@ -20,25 +20,25 @@ class PointLights:
         self.localSpace=[]
         self.color=[]
         
-    def unloadPointLightData(self):
+    def unloadPointLightData(self,file):
         
-        print("<falloff_distance>%f</falloff_distance>"%self.falloffDistance)
-        print("<energy>%f</energy>"%self.energy)
-        print("<linear_attenuation>%f</linear_attenuation>"%self.linearAttenuation)
-        print("<quadratic_attenuation>%f</quadratic_attenuation>"%self.quadraticAttenuation)
+        file.write("<falloff_distance>%f</falloff_distance>\n"%self.falloffDistance)
+        file.write("<energy>%f</energy>\n"%self.energy)
+        file.write("<linear_attenuation>%f</linear_attenuation>\n"%self.linearAttenuation)
+        file.write("<quadratic_attenuation>%f</quadratic_attenuation>\n"%self.quadraticAttenuation)
         
-        print("<light_color>",end="")
+        file.write("<light_color>")
         for s in self.color:
-            print("%f %f %f 1.0"%tuple(s),end="")
-        print("</light_color>") 
+            file.write("%f %f %f 1.0"%tuple(s))
+        file.write("</light_color>\n") 
         
-        print("<local_matrix>",end="")
+        file.write("<local_matrix>")
         for m in self.localSpace:
-            print("%f %f %f %f "%tuple(m.row[0]),end="")
-            print("%f %f %f %f "%tuple(m.row[1]),end="")
-            print("%f %f %f %f "%tuple(m.row[2]),end="")
-            print("%f %f %f %f"%tuple(m.row[3]),end="")
-        print("</local_matrix>")
+            file.write("%f %f %f %f "%tuple(m.row[0]))
+            file.write("%f %f %f %f "%tuple(m.row[1]))
+            file.write("%f %f %f %f "%tuple(m.row[2]))
+            file.write("%f %f %f %f"%tuple(m.row[3]))
+        file.write("</local_matrix>\n")
         
         
     
@@ -209,67 +209,67 @@ class Armature:
             
             self.bones.append(bone)
 
-    def unloadBones(self):
+    def unloadBones(self,file):
         
-        print("<armature>",end="")
-        print()
-        print("<bind_shape_matrix>",end="")
+        file.write("<armature>")
+        file.write("\n")
+        file.write("<bind_shape_matrix>")
         for m in self.bindShapeMatrix:
-            print("%f %f %f %f "%tuple(m.row[0]),end="")
-            print("%f %f %f %f "%tuple(m.row[1]),end="")
-            print("%f %f %f %f "%tuple(m.row[2]),end="")
-            print("%f %f %f %f"%tuple(m.row[3]),end="")
-        print("</bind_shape_matrix>")
+            file.write("%f %f %f %f "%tuple(m.row[0]))
+            file.write("%f %f %f %f "%tuple(m.row[1]))
+            file.write("%f %f %f %f "%tuple(m.row[2]))
+            file.write("%f %f %f %f"%tuple(m.row[3]))
+        file.write("</bind_shape_matrix>\n")
         
         for bone in self.bones:
-            print()
-            print("<bone name=\"%s\" parent=\"%s\">"%(bone.name,bone.parent))
-            print("<local_matrix>",end="")
+            file.write("\n")
+            file.write("<bone name=\"%s\" parent=\"%s\">\n"%(bone.name,bone.parent))
+            file.write("<local_matrix>")
             for m in bone.localMatrixList:
-                print("%f %f %f %f "%tuple(m.row[0]),end="")
-                print("%f %f %f %f "%tuple(m.row[1]),end="")
-                print("%f %f %f %f "%tuple(m.row[2]),end="")
-                print("%f %f %f %f"%tuple(m.row[3]),end="")
-            print("</local_matrix>")
+                file.write("%f %f %f %f "%tuple(m.row[0]))
+                file.write("%f %f %f %f "%tuple(m.row[1]))
+                file.write("%f %f %f %f "%tuple(m.row[2]))
+                file.write("%f %f %f %f"%tuple(m.row[3]))
+            file.write("</local_matrix>\n")
             
-            print("<bind_pose_matrix>",end="")
+            file.write("<bind_pose_matrix>")
             for m in bone.bindPoseMatrixList:
-                print("%f %f %f %f "%tuple(m.row[0]),end="")
-                print("%f %f %f %f "%tuple(m.row[1]),end="")
-                print("%f %f %f %f "%tuple(m.row[2]),end="")
-                print("%f %f %f %f"%tuple(m.row[3]),end="")
+                file.write("%f %f %f %f "%tuple(m.row[0]))
+                file.write("%f %f %f %f "%tuple(m.row[1]))
+                file.write("%f %f %f %f "%tuple(m.row[2]))
+                file.write("%f %f %f %f"%tuple(m.row[3]))
             
-            print("</bind_pose_matrix>")
+            file.write("</bind_pose_matrix>\n")
             
-            print("<inverse_bind_pose_matrix>",end="")
+            file.write("<inverse_bind_pose_matrix>")
             for m in bone.inverseBindPoseMatrixList:
-                print("%f %f %f %f "%tuple(m.row[0]),end="")
-                print("%f %f %f %f "%tuple(m.row[1]),end="")
-                print("%f %f %f %f "%tuple(m.row[2]),end="")
-                print("%f %f %f %f"%tuple(m.row[3]),end="")
+                file.write("%f %f %f %f "%tuple(m.row[0]))
+                file.write("%f %f %f %f "%tuple(m.row[1]))
+                file.write("%f %f %f %f "%tuple(m.row[2]))
+                file.write("%f %f %f %f"%tuple(m.row[3]))
                 
-            print("</inverse_bind_pose_matrix>")
+            file.write("</inverse_bind_pose_matrix>\n")
             
-            print("<rest_pose_matrix>",end="")
+            file.write("<rest_pose_matrix>")
             for m in bone.restPoseMatrixList:
-                print("%f %f %f %f "%tuple(m.row[0]),end="")
-                print("%f %f %f %f "%tuple(m.row[1]),end="")
-                print("%f %f %f %f "%tuple(m.row[2]),end="")
-                print("%f %f %f %f"%tuple(m.row[3]),end="")
+                file.write("%f %f %f %f "%tuple(m.row[0]))
+                file.write("%f %f %f %f "%tuple(m.row[1]))
+                file.write("%f %f %f %f "%tuple(m.row[2]))
+                file.write("%f %f %f %f"%tuple(m.row[3]))
                 
-            print("</rest_pose_matrix>")
+            file.write("</rest_pose_matrix>\n")
             
-            print("<vertex_weights>",end="")
+            file.write("<vertex_weights>")
             for vw in bone.vertexWeights:
-                print("%f "%vw,end="")
-            print("</vertex_weights>")
+                file.write("%f "%vw)
+            file.write("</vertex_weights>\n")
             
-            print("</bone>")
+            file.write("</bone>\n")
         
         
-        print("</armature>")
+        file.write("</armature>\n")
         
-        print()
+        file.write("\n")
     
     def frameToTime(self,frame):
         fps=bpy.context.scene.render.fps
@@ -344,37 +344,37 @@ class Armature:
                 self.animations.append(animation)    
                     
     
-    def unloadAnimations(self):
+    def unloadAnimations(self,file):
         
         if(self.hasAnimation is True):
             
-            print("<animations>")
+            file.write("<animations>\n")
             for animation in self.animations:
                 #print animations
-                print("<animation name=\"%s\" fps=\"%f\">"%(animation.name,animation.fps))
+                file.write("<animation name=\"%s\" fps=\"%f\">\n"%(animation.name,animation.fps))
                 
                 for keyframe in animation.keyframes:
                     
                     #print keyframe time
-                    print("<keyframe time=\"%f\">"%keyframe.time)
+                    file.write("<keyframe time=\"%f\">\n"%keyframe.time)
                     
                     for bonePoses in keyframe.animationBonePoses:
                         
                         #print bone poses
-                        print("<pose_matrix name=\"%s\">"%bonePoses.name,end="")
+                        file.write("<pose_matrix name=\"%s\">"%bonePoses.name)
                         
                         for m in bonePoses.pose:
-                            print("%f %f %f %f "%tuple(m.row[0]),end="")
-                            print("%f %f %f %f "%tuple(m.row[1]),end="")
-                            print("%f %f %f %f "%tuple(m.row[2]),end="")
-                            print("%f %f %f %f"%tuple(m.row[3]),end="")
+                            file.write("%f %f %f %f "%tuple(m.row[0]))
+                            file.write("%f %f %f %f "%tuple(m.row[1]))
+                            file.write("%f %f %f %f "%tuple(m.row[2]))
+                            file.write("%f %f %f %f"%tuple(m.row[3]))
                         
-                        print("</pose_matrix>")
+                        file.write("</pose_matrix>\n")
                         
-                    print("</keyframe>")
+                    file.write("</keyframe>\n")
                 
-                print("</animation>")
-            print("</animations>")             
+                file.write("</animation>\n")
+            file.write("</animations>\n")             
             
 
 class Materials:
@@ -414,116 +414,116 @@ class Model:
         self.vertexGroupDict={}   
         self.worldMatrix=world
         
-    def unloadModelData(self):
+    def unloadModelData(self,file):
         
-        self.unloadCoordinates()
-        self.unloadMaterials()
-        self.unloadTexture()
-        self.unloadLocalSpace()
-        self.unloadArmature()
-        self.unloadAnimations()
+        self.unloadCoordinates(file)
+        self.unloadMaterials(file)
+        self.unloadTexture(file)
+        self.unloadLocalSpace(file)
+        self.unloadArmature(file)
+        self.unloadAnimations(file)
     
-    def unloadCoordinates(self):
+    def unloadCoordinates(self,file):
                 
-        print("<vertices>",end="")
+        file.write("<vertices>")
             
         for i in range(0,len(self.coordinates.vertices)):
             
-            print("%f %f %f "%tuple(self.coordinates.vertices[i]),end="")   
+            file.write("%f %f %f "%tuple(self.coordinates.vertices[i]))   
                 
-        print("</vertices>")
+        file.write("</vertices>\n")
         
-        print()
+        file.write("\n")
         
-        print("<normal>",end="")
+        file.write("<normal>")
         
         for i in range(0,len(self.coordinates.normal)):
             
-            print("%f %f %f "%tuple(self.coordinates.normal[i]),end="")
+            file.write("%f %f %f "%tuple(self.coordinates.normal[i]))
                      
-        print("</normal>")
+        file.write("</normal>\n")
         
-        print()
+        file.write("\n")
             
         if(self.hasUV):
             
-            print("<uv>",end="")
+            file.write("<uv>")
         
             for i in range(0,len(self.coordinates.uv)):
                 
-                print("%f %f "%tuple(self.coordinates.uv[i]),end="")
+                file.write("%f %f "%tuple(self.coordinates.uv[i]))
                    
-            print("</uv>")
+            file.write("</uv>\n")
             
-            print() 
+            file.write("\n") 
     
-        print("<index>",end="")
+        file.write("<index>")
         
         for i in self.coordinates.index:
-            print("%d "%i,end="")
+            file.write("%d "%i)
         
-        print("</index>")
+        file.write("</index>\n")
         
-        print()
+        file.write("\n")
         
-    def unloadMaterials(self):
+    def unloadMaterials(self,file):
         
         if(self.hasMaterials):
-            print("<diffuse_color>",end="")
+            file.write("<diffuse_color>")
             for d in self.materials.diffuse:
-                print("%f %f %f 1.0" %tuple(d),end="")  
-            print("</diffuse_color>")    
+                file.write("%f %f %f 1.0" %tuple(d))  
+            file.write("</diffuse_color>\n")    
                 
-            print("<specular_color>",end="")
+            file.write("<specular_color>")
             for s in self.materials.specular:
-                print("%f %f %f 1.0"%tuple(s),end="")
-            print("</specular_color>")    
+                file.write("%f %f %f 1.0"%tuple(s))
+            file.write("</specular_color>\n")    
             
-            print("<ambient_color>",end="")    
-            print("0.0 0.0 0.0 1.0",end="")
-            print("</ambient_color>") 
+            file.write("<ambient_color>")    
+            file.write("0.0 0.0 0.0 1.0")
+            file.write("</ambient_color>\n") 
             
-            print("<emission_color>",end="")
-            print("0.0 0.0 0.0 1.0",end="")
-            print("</emission_color>") 
+            file.write("<emission_color>")
+            file.write("0.0 0.0 0.0 1.0")
+            file.write("</emission_color>\n") 
             
-            print("<shininess>",end="")
-            print("%f"%self.materials.shininess,end="")
-            print("</shininess>")
-            print()
+            file.write("<shininess>")
+            file.write("%f"%self.materials.shininess)
+            file.write("</shininess>\n")
+            file.write("\n")
             
-    def unloadTexture(self):
+    def unloadTexture(self,file):
         
         if(self.hasUV):
-            print("<texture_image>%s</texture_image>"%self.texture)
+            file.write("<texture_image>%s</texture_image>\n"%self.texture)
             
-            print()
+            file.write("\n")
     
-    def unloadLocalSpace(self):
+    def unloadLocalSpace(self,file):
         
-        print("<local_matrix>",end="")
+        file.write("<local_matrix>")
         for m in self.localSpace:
-            print("%f %f %f %f "%tuple(m.row[0]),end="")
-            print("%f %f %f %f "%tuple(m.row[1]),end="")
-            print("%f %f %f %f "%tuple(m.row[2]),end="")
-            print("%f %f %f %f"%tuple(m.row[3]),end="")
-        print("</local_matrix>")
+            file.write("%f %f %f %f "%tuple(m.row[0]))
+            file.write("%f %f %f %f "%tuple(m.row[1]))
+            file.write("%f %f %f %f "%tuple(m.row[2]))
+            file.write("%f %f %f %f"%tuple(m.row[3]))
+        file.write("</local_matrix>\n")
         
-        print()
+        file.write("\n")
         
-    def unloadArmature(self):
+    def unloadArmature(self,file):
         
         if(self.hasArmature):
-            self.armature.unloadBones()
+            self.armature.unloadBones(file)
     
     def setArmature(self):
         self.armature.setRootBone()
         
-    def unloadAnimations(self):
+    def unloadAnimations(self,file):
         
         if(self.hasArmature):
             if(self.armature.hasAnimation):
-                self.armature.unloadAnimations()
+                self.armature.unloadAnimations(file)
         
 class Lights:
     pass
@@ -760,52 +760,53 @@ class Loader:
     def loadCamera(self):
         pass
 
-    def unloadData(self):
+    def unloadData(self,file):
         
-        print("<?xml version=\"1.0\" encoding=\"utf-8\"?>")
-        print("<UntoldEngine xmlns=\"\" version=\"0.0.1\">")
+        file.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
+        file.write("<UntoldEngine xmlns=\"\" version=\"0.0.1\">\n")
         
-        print("<asset>")
+        file.write("<asset>\n")
         
-        self.unloadModel()
-        self.unloadPointLights()
+        self.unloadModel(file)
+        self.unloadPointLights(file)
         
-        print("</asset>")
+        file.write("</asset>\n")
         
-        print("</UntoldEngine>")
+        file.write("</UntoldEngine>\n")
         
         
-    def unloadModel(self):
+    def unloadModel(self,file):
         
-        print("<meshes>")
+        file.write("<meshes>\n")
         
         for model in self.modelList:
             
-            print("<mesh name=\"%s\" vertex_count=\"%d\" index_count=\"%d\">"%(model.name,len(model.coordinates.vertices),len(model.coordinates.index)))
+            file.write("<mesh name=\"%s\" vertex_count=\"%d\" index_count=\"%d\">\n"%(model.name,len(model.coordinates.vertices),len(model.coordinates.index)))
             
-            model.unloadModelData()
+            model.unloadModelData(file)
             
-            print("</mesh>")                                 
+            file.write("</mesh>\n")                                 
             
-            print()
+            file.write("\n")
         
-        print("</meshes>")
-        print()
+        file.write("</meshes>\n")
         
-    def unloadPointLights(self):
+        file.write("\n")
         
-        print("<point_lights>")
+    def unloadPointLights(self,file):
+        
+        file.write("<point_lights>\n")
         for lights in self.pointLightsList:
-            print()
-            print("<point_light name=\"%s\">"%lights.name)
+            file.write("\n")
+            file.write("<point_light name=\"%s\">\n"%lights.name)
             
-            lights.unloadPointLightData()
+            lights.unloadPointLightData(file)
             
-            print("</point_light>")
-            print()
-        print("</point_lights>")
+            file.write("</point_light>\n")
+            file.write("\n")
+        file.write("</point_lights>\n")
         
-        print()
+        file.write("\n")
     def unloadCamera(self):
         pass
     
@@ -816,11 +817,13 @@ def main():
     scene=bpy.context.scene
     scene.frame_set(0)
     
+    outfile=open('/Users/haroldserrano/Desktop/new.txt','w')
+    
     loader=Loader()
     loader.loadModel()
     loader.loadPointLights()
     
-    loader.unloadData()
+    loader.unloadData(outfile)
     
 
 if __name__ == '__main__':
