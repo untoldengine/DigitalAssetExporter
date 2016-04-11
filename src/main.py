@@ -403,6 +403,8 @@ class ConvexHull:
             print("%f %f %f "%tuple(self.vertices[i]),end="")   
                 
         print("</convexHull>")
+        
+        print()
 
 class Textures:
     def __init__(self):
@@ -413,6 +415,7 @@ class Model:
         self.name=''
         self.vertexCount=''
         self.indexCount=''
+        self.dimension=[]
         self.hasUV=False
         self.hasMaterials=False
         self.hasArmature=False
@@ -437,6 +440,7 @@ class Model:
         self.unloadArmature()
         self.unloadAnimations()
         self.unloadConvexHull()
+        self.unloadDimension()
     
     def unloadCoordinates(self):
                 
@@ -542,6 +546,17 @@ class Model:
                 
     def unloadConvexHull(self):
         self.convexHull.unloadConvexHull()
+        
+    def unloadDimension(self):
+        
+        print("<dimension>",end="")
+            
+        for dimension in self.dimension:
+            print("%f %f %f"%tuple(dimension),end="")  
+                
+        print("</dimension>")
+        
+        print()
         
 class Lights:
     pass
@@ -689,8 +704,6 @@ class Loader:
                     
                     model.texture=texture
                 
-                
-                
                 #get all the vertex groups affecting the object
                 for vertexGroups in scene.objects[model.name].vertex_groups:
                     model.vertexGroupDict[vertexGroups.name]=vertexGroups.index
@@ -744,7 +757,10 @@ class Loader:
                 for hull in model.coordinates.vertices[0:model.convexHull.vertexCount]:
                 
                     model.convexHull.vertices.append(hull)
-                    
+                
+                #get dimension of object
+                model.dimension.append(scene.objects[model.name].dimensions)
+                
                     
                 self.modelList.append(model)
                 
