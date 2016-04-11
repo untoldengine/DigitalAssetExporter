@@ -393,6 +393,7 @@ class Coordinates:
 class ConvexHull:
     def __init__(self):
         self.vertices=[]
+        self.vertexCount=0
         
     def unloadConvexHull(self):
         print("<convexHull>",end="")
@@ -738,7 +739,9 @@ class Loader:
                     model.armature.setAnimations()
                     
                 #get the convex hull
-                for hull in model.coordinates.vertices[0:8]:
+                model.convexHull.vertexCount=len(scene.objects[model.name].data.vertices)
+                
+                for hull in model.coordinates.vertices[0:model.convexHull.vertexCount]:
                 
                     model.convexHull.vertices.append(hull)
                     
