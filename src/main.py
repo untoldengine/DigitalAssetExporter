@@ -390,6 +390,19 @@ class Coordinates:
         self.uv=[]
         self.index=[]
 
+class ConvexHull:
+    def __init__(self):
+        self.vertices=[]
+        self.vertexCount=0
+        
+    def unloadConvexHull(self):
+        print("<convexHull>",end="")
+            
+        for i in range(0,len(self.vertices)):
+            
+            print("%f %f %f "%tuple(self.vertices[i]),end="")   
+                
+        print("</convexHull>")
 
 class Textures:
     def __init__(self):
@@ -405,6 +418,7 @@ class Model:
         self.hasArmature=False
         self.hasAnimation=False
         self.coordinates=Coordinates()
+        self.convexHull=ConvexHull()
         self.materials=Materials()
         self.texture=Textures()
         self.localSpace=[]
@@ -422,6 +436,7 @@ class Model:
         self.unloadLocalSpace()
         self.unloadArmature()
         self.unloadAnimations()
+        self.unloadConvexHull()
     
     def unloadCoordinates(self):
                 
@@ -524,6 +539,9 @@ class Model:
         if(self.hasArmature):
             if(self.armature.hasAnimation):
                 self.armature.unloadAnimations()
+                
+    def unloadConvexHull(self):
+        self.convexHull.unloadConvexHull()
         
 class Lights:
     pass
@@ -719,6 +737,14 @@ class Loader:
                     model.armature.loadBonesInfo()
                     
                     model.armature.setAnimations()
+                    
+                #get the convex hull
+                model.convexHull.vertexCount=len(scene.objects[model.name].data.vertices)
+                
+                for hull in model.coordinates.vertices[0:model.convexHull.vertexCount]:
+                
+                    model.convexHull.vertices.append(hull)
+                    
                     
                 self.modelList.append(model)
                 
