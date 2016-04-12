@@ -390,6 +390,21 @@ class Coordinates:
         self.uv=[]
         self.index=[]
 
+#get edges, faces
+class Feature:
+    def __init__(self):
+        self.edges=[]
+    
+    def unloadFeature(self):
+        print("<edges>",end="")
+            
+        for i in self.edges:
+            print("%d "%i,end="")
+        
+        print("</edges>")
+        
+        print()
+        
 class ConvexHull:
     def __init__(self):
         self.vertices=[]
@@ -422,6 +437,7 @@ class Model:
         self.hasAnimation=False
         self.coordinates=Coordinates()
         self.convexHull=ConvexHull()
+        self.feature=Feature()
         self.materials=Materials()
         self.texture=Textures()
         self.localSpace=[]
@@ -440,6 +456,7 @@ class Model:
         self.unloadArmature()
         self.unloadAnimations()
         self.unloadConvexHull()
+        self.unloadFeature()
         self.unloadDimension()
     
     def unloadCoordinates(self):
@@ -546,6 +563,9 @@ class Model:
                 
     def unloadConvexHull(self):
         self.convexHull.unloadConvexHull()
+    
+    def unloadFeature(self):
+        self.feature.unloadFeature()    
         
     def unloadDimension(self):
         
@@ -761,6 +781,11 @@ class Loader:
                 #get dimension of object
                 model.dimension.append(scene.objects[model.name].dimensions)
                 
+                #get the feature of the mesh,i.e., edge
+                for edge in scene.objects[model.name].data.edges:
+                    
+                    for edges in edge.vertices:
+                        model.feature.edges.append(edges)
                     
                 self.modelList.append(model)
                 
