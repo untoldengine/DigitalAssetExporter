@@ -394,8 +394,10 @@ class Coordinates:
 class Feature:
     def __init__(self):
         self.edges=[]
+        self.faces=[]
     
     def unloadFeature(self):
+        #print edges
         print("<edges>",end="")
             
         for i in self.edges:
@@ -404,6 +406,18 @@ class Feature:
         print("</edges>")
         
         print()
+        
+        #print faces
+        print("<faces>",end="")
+            
+        for i in self.faces:
+            print("%d "%i,end="")
+        
+        print("</faces>")
+        
+        print()
+        
+        
         
 class ConvexHull:
     def __init__(self):
@@ -786,6 +800,12 @@ class Loader:
                     
                     for edges in edge.vertices:
                         model.feature.edges.append(edges)
+                        
+                #get the faces of the mesh
+                for face in scene.objects[model.name].data.polygons:
+                    
+                    for faces in face.vertices:
+                        model.feature.faces.append(faces)        
                     
                 self.modelList.append(model)
                 
