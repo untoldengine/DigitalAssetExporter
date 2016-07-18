@@ -390,50 +390,6 @@ class Coordinates:
         self.uv=[]
         self.index=[]
 
-#get edges, faces
-class Feature:
-    def __init__(self):
-        self.edges=[]
-        self.faces=[]
-    
-    def unloadFeature(self):
-        #print edges
-        print("<edges>",end="")
-            
-        for i in self.edges:
-            print("%d "%i,end="")
-        
-        print("</edges>")
-        
-        print()
-        
-        #print faces
-        print("<faces>",end="")
-            
-        for i in self.faces:
-            print("%d "%i,end="")
-        
-        print("</faces>")
-        
-        print()
-        
-        
-        
-class ConvexHull:
-    def __init__(self):
-        self.vertices=[]
-        self.vertexCount=0
-        
-    def unloadConvexHull(self):
-        print("<convexHull>",end="")
-            
-        for i in range(0,len(self.vertices)):
-            
-            print("%f %f %f "%tuple(self.vertices[i]),end="")   
-                
-        print("</convexHull>")
-        
-        print()
 
 class Textures:
     def __init__(self):
@@ -450,8 +406,6 @@ class Model:
         self.hasArmature=False
         self.hasAnimation=False
         self.coordinates=Coordinates()
-        self.convexHull=ConvexHull()
-        self.feature=Feature()
         self.materials=Materials()
         self.texture=Textures()
         self.localSpace=[]
@@ -469,8 +423,6 @@ class Model:
         self.unloadLocalSpace()
         self.unloadArmature()
         self.unloadAnimations()
-        self.unloadConvexHull()
-        self.unloadFeature()
         self.unloadDimension()
     
     def unloadCoordinates(self):
@@ -573,13 +525,7 @@ class Model:
         
         if(self.hasArmature):
             if(self.armature.hasAnimation):
-                self.armature.unloadAnimations()
-                
-    def unloadConvexHull(self):
-        self.convexHull.unloadConvexHull()
-    
-    def unloadFeature(self):
-        self.feature.unloadFeature()    
+                self.armature.unloadAnimations()   
         
     def unloadDimension(self):
         
@@ -784,28 +730,9 @@ class Loader:
                     model.armature.loadBonesInfo()
                     
                     model.armature.setAnimations()
-                    
-                #get the convex hull
-                model.convexHull.vertexCount=len(scene.objects[model.name].data.vertices)
-                
-                for hull in model.coordinates.vertices[0:model.convexHull.vertexCount]:
-                
-                    model.convexHull.vertices.append(hull)
                 
                 #get dimension of object
-                model.dimension.append(scene.objects[model.name].dimensions)
-                
-                #get the feature of the mesh,i.e., edge
-                for edge in scene.objects[model.name].data.edges:
-                    
-                    for edges in edge.vertices:
-                        model.feature.edges.append(edges)
-                        
-                #get the faces of the mesh
-                for face in scene.objects[model.name].data.polygons:
-                    
-                    for faces in face.vertices:
-                        model.feature.faces.append(faces)        
+                model.dimension.append(scene.objects[model.name].dimensions)        
                     
                 self.modelList.append(model)
                 
