@@ -615,7 +615,7 @@ class Loader:
                     vertex=scene.objects[model.name].data.vertices[indices.vertex_index].co
                     
                     #convert vertex to openGL coordinate
-                    vertex=scene.objects[model.name].matrix_local*vertex                
+                    vertex=world.localMatrix*vertex                
                     
                     vertex=self.r3d(vertex)
                     
@@ -625,8 +625,8 @@ class Loader:
                     
                     normal=scene.objects[model.name].data.vertices[indices.vertex_index].normal
                     
-                    #convert normal to OpenGL coordinate
-                    normal=scene.objects[model.name].matrix_local*normal
+                    #convert normal to OpenGL coordinate 
+                    normal=world.localMatrix*normal
                     
                     normal=self.r3d(normal)
                     
