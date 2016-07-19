@@ -547,6 +547,7 @@ class Camera:
 class World:
     def __init__(self):
         self.openGLSpaceTransform=[]
+        self.openGLLocalSpaceTransform=[]
         
   
 class Loader:
@@ -587,6 +588,10 @@ class Loader:
         world.openGLSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
         world.openGLSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
         
+        world.openGLLocalSpaceTransform=mathutils.Matrix.Identity(4)
+        world.openGLLocalSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
+        world.openGLLocalSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1))
+        
         self.world=world
         
         #get all models in the scene
@@ -600,7 +605,7 @@ class Loader:
                 model.name=models.name
                 
                 #get local matrix
-                matrix_local=scene.objects[model.name].matrix_local
+                matrix_local=world.openGLLocalSpaceTransform*scene.objects[model.name].matrix_local*world.openGLLocalSpaceTransform
                 
                 model.localSpace.append(matrix_local)
                 
