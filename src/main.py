@@ -546,7 +546,8 @@ class Camera:
 
 class World:
     def __init__(self):
-        self.localMatrix=[]
+        self.openGLSpaceTransform=[]
+        self.openGLLocalSpaceTransform=[]
         
   
 class Loader:
@@ -582,10 +583,14 @@ class Loader:
         #get world matrix
         world=World()
         #convert world to opengl coords
-        world.localMatrix=mathutils.Matrix.Identity(4)
-        world.localMatrix*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
-        world.localMatrix*=mathutils.Matrix.Rotation(radians(90), 4, "X")
-        world.localMatrix*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        world.openGLSpaceTransform=mathutils.Matrix.Identity(4)
+        world.openGLSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        world.openGLSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
+        world.openGLSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        
+        world.openGLLocalSpaceTransform=mathutils.Matrix.Identity(4)
+        world.openGLLocalSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
+        world.openGLLocalSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1))
         
         self.world=world
         
@@ -600,7 +605,7 @@ class Loader:
                 model.name=models.name
                 
                 #get local matrix
-                matrix_local=world.localMatrix*scene.objects[model.name].matrix_local
+                matrix_local=world.openGLLocalSpaceTransform*scene.objects[model.name].matrix_local*world.openGLLocalSpaceTransform
                 
                 model.localSpace.append(matrix_local)
                 
@@ -615,7 +620,7 @@ class Loader:
                     vertex=scene.objects[model.name].data.vertices[indices.vertex_index].co
                     
                     #convert vertex to openGL coordinate
-                    vertex=scene.objects[model.name].matrix_local*vertex                
+                    vertex=world.openGLSpaceTransform*vertex                
                     
                     vertex=self.r3d(vertex)
                     
@@ -626,7 +631,7 @@ class Loader:
                     normal=scene.objects[model.name].data.vertices[indices.vertex_index].normal
                     
                     #convert normal to OpenGL coordinate
-                    normal=scene.objects[model.name].matrix_local*normal
+                    normal=world.openGLSpaceTransform*normal
                     
                     normal=self.r3d(normal)
                     
@@ -766,7 +771,7 @@ class Loader:
                 light.quadraticAttenuation=scene.objects[light.name].data.quadratic_attenuation
                 
                 #light local space
-                light.localSpace.append(self.world.localMatrix*scene.objects[light.name].matrix_local)
+                light.localSpace.append(self.world.openGLSpaceTransform*scene.objects[light.name].matrix_local)
                 
                 #append the lights to the list
                 self.pointLightsList.append(light)
