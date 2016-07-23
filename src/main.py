@@ -402,6 +402,7 @@ class Model:
         self.indexCount=''
         self.dimension=[]
         self.hasUV=False
+        self.hasTexture=False
         self.hasMaterials=False
         self.hasArmature=False
         self.hasAnimation=False
@@ -496,7 +497,7 @@ class Model:
             
     def unloadTexture(self):
         
-        if(self.hasUV):
+        if(self.hasTexture):
             print("<texture_image>%s</texture_image>"%self.texture)
             
             print()
@@ -683,7 +684,9 @@ class Loader:
                 
                 
                 #get texture name
-                if(model.hasUV):
+                if(scene.objects[model.name].data.uv_textures.active.data[0].image!=None):
+                    
+                    model.hasTexture=True;
                     
                     texture=scene.objects[model.name].data.uv_textures.active.data[0].image.name
                     
