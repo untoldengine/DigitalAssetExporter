@@ -684,13 +684,14 @@ class Loader:
                 
                 
                 #get texture name
-                if(scene.objects[model.name].data.uv_textures.active.data[0].image!=None):
-                    
-                    model.hasTexture=True;
-                    
-                    texture=scene.objects[model.name].data.uv_textures.active.data[0].image.name
-                    
-                    model.texture=texture
+                if(model.hasUV==True):
+                    if(scene.objects[model.name].data.uv_textures.active.data[0].image!=None):
+                        
+                        model.hasTexture=True;
+                        
+                        texture=scene.objects[model.name].data.uv_textures.active.data[0].image.name
+                        
+                        model.texture=texture
                 
                 #get all the vertex groups affecting the object
                 for vertexGroups in scene.objects[model.name].vertex_groups:
