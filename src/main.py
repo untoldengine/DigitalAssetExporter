@@ -423,7 +423,7 @@ class Model:
     def unloadModelData(self):
         
         self.unloadCoordinates()
-        self.unloadMaterialIndex()
+        #self.unloadMaterialIndex()
         self.unloadMaterials()
         self.unloadTexture()
         self.unloadLocalSpace()
