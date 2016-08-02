@@ -379,9 +379,12 @@ class Armature:
 
 class Materials:
     def __init__(self):
+        self.name=''
         self.diffuse=[]
         self.specular=[]
-        self.shininess=0.0
+        self.diffuse_intensity=[]
+        self.specular_intensity=[] 
+        self.specular_hardness=[]  
     
 class Coordinates:
     def __init__(self):
@@ -408,6 +411,7 @@ class Model:
         self.hasAnimation=False
         self.coordinates=Coordinates()
         self.materials=Materials()
+        self.materialIndex=[]
         self.texture=Textures()
         self.localSpace=[]
         self.absoluteSpace=[]
@@ -419,6 +423,7 @@ class Model:
     def unloadModelData(self):
         
         self.unloadCoordinates()
+        #self.unloadMaterialIndex()
         self.unloadMaterials()
         self.unloadTexture()
         self.unloadLocalSpace()
@@ -474,27 +479,39 @@ class Model:
         if(self.hasMaterials):
             print("<diffuse_color>",end="")
             for d in self.materials.diffuse:
-                print("%f %f %f 1.0" %tuple(d),end="")  
+                print("%f %f %f 1.0 " %tuple(d),end="")  
             print("</diffuse_color>")    
                 
             print("<specular_color>",end="")
             for s in self.materials.specular:
-                print("%f %f %f 1.0"%tuple(s),end="")
+                print("%f %f %f 1.0 "%tuple(s),end="")
             print("</specular_color>")    
             
-            print("<ambient_color>",end="")    
-            print("0.0 0.0 0.0 1.0",end="")
-            print("</ambient_color>") 
+            print("<diffuse_intensity>",end="")
+            for di in self.materials.diffuse_intensity:
+                print("%f " %di,end="")
+            print("</diffuse_intensity>")       
             
-            print("<emission_color>",end="")
-            print("0.0 0.0 0.0 1.0",end="")
-            print("</emission_color>") 
+            print("<specular_intensity>",end="")
+            for si in self.materials.specular_intensity:
+                print("%f " %si,end="")
+            print("</specular_intensity>") 
             
-            print("<shininess>",end="")
-            print("%f"%self.materials.shininess,end="")
-            print("</shininess>")
+            print("<specular_hardness>",end="")
+            for sh in self.materials.specular_hardness:
+                print("%f " %sh,end="")
+            print("</specular_hardness>") 
+    
             print()
-            
+    
+    def unloadMaterialIndex(self):
+        
+        print("<material_index>",end="")
+        for i in self.materialIndex:
+            print("%d " %i,end="")  
+        print("</material_index>")  
+        print()
+                
     def unloadTexture(self):
         
         if(self.hasTexture):
@@ -650,6 +667,10 @@ class Loader:
                         
                     #get the index
                     model.coordinates.index.append(i)
+                    
+                    #get material index
+                    material_index=scene.objects[model.name].data.polygons[indices.vertex_index].material_index
+                    model.materialIndex.append(material_index)
                 
                 if(scene.objects[model.name].data.uv_layers):
                     for uvCoordinates in scene.objects[model.name].data.uv_layers.active.data:
@@ -661,26 +682,18 @@ class Loader:
                     
                 #check if model has materials
                 
-                if(scene.objects[model.name].active_material):
+                if(len(scene.objects[model.name].material_slots)>0):
                 
-                    model.hasMaterials=True
-                    
-                    materials=scene.objects[model.name].active_material
+                    #get model material slots
+                    for materialSlot in scene.objects[model.name].material_slots:
                         
-                    #get diffuse color
-                    diffuse_color=materials.diffuse_color
-                    
-                    model.materials.diffuse.append(diffuse_color)
-                    
-                    #get specular color
-                    specular_color=materials.specular_color
-    
-                    model.materials.specular.append(specular_color)
-    
-                    #get shininess of material
-                    shininess=materials.specular_hardness
-                    
-                    model.materials.shininess=shininess
+                        model.materials.diffuse.append(bpy.data.materials[materialSlot.name].diffuse_color)
+                        model.materials.specular.append(bpy.data.materials[materialSlot.name].specular_color)
+                        model.materials.diffuse_intensity.append(bpy.data.materials[materialSlot.name].diffuse_intensity)
+                        model.materials.specular_intensity.append(bpy.data.materials[materialSlot.name].specular_intensity)
+                        model.materials.specular_hardness.append(bpy.data.materials[materialSlot.name].specular_hardness)
+                        
+                    model.hasMaterials=True
                 
                 
                 #get texture name
