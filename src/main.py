@@ -423,7 +423,7 @@ class Model:
     def unloadModelData(self):
         
         self.unloadCoordinates()
-        #self.unloadMaterialIndex()
+        self.unloadMaterialIndex()
         self.unloadMaterials()
         self.unloadTexture()
         self.unloadLocalSpace()
@@ -669,8 +669,8 @@ class Loader:
                     model.coordinates.index.append(i)
                     
                     #get material index
-                    material_index=scene.objects[model.name].data.polygons[indices.vertex_index].material_index
-                    model.materialIndex.append(material_index)
+                    #material_index=scene.objects[model.name].data.polygons[indices.vertex_index].material_index
+                    #model.materialIndex.append(material_index)
                 
                 if(scene.objects[model.name].data.uv_layers):
                     for uvCoordinates in scene.objects[model.name].data.uv_layers.active.data:
@@ -684,6 +684,14 @@ class Loader:
                 
                 if(len(scene.objects[model.name].material_slots)>0):
                 
+                     #get material index
+                    for materialIndex in scene.objects[model.name].data.polygons:
+                        #need to append it three for each triangle vertex
+                        model.materialIndex.append(materialIndex.material_index)
+                        model.materialIndex.append(materialIndex.material_index)
+                        model.materialIndex.append(materialIndex.material_index)
+                        
+                        
                     #get model material slots
                     for materialSlot in scene.objects[model.name].material_slots:
                         
