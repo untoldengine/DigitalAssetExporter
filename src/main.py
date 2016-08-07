@@ -505,12 +505,12 @@ class Model:
             print()
     
     def unloadMaterialIndex(self):
-        
-        print("<material_index>",end="")
-        for i in self.materialIndex:
-            print("%d " %i,end="")  
-        print("</material_index>")  
-        print()
+        if(self.hasMaterials):
+            print("<material_index>",end="")
+            for i in self.materialIndex:
+                print("%d " %i,end="")  
+            print("</material_index>")  
+            print()
                 
     def unloadTexture(self):
         
