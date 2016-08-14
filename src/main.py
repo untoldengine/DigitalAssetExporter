@@ -419,10 +419,12 @@ class Model:
         self.vertexGroupWeight=[] 
         self.vertexGroupDict={}   
         self.worldMatrix=world
+        self.prehullvertices=[]
         
     def unloadModelData(self):
         
         self.unloadCoordinates()
+        self.unloadHull()
         self.unloadMaterialIndex()
         self.unloadMaterials()
         self.unloadTexture()
@@ -474,6 +476,18 @@ class Model:
         
         print()
         
+    def unloadHull(self):
+        
+        print("<prehullvertices>",end="")
+            
+        for i in range(0,len(self.prehullvertices)):
+            
+            print("%f %f %f "%tuple(self.prehullvertices[i]),end="")   
+                
+        print("</prehullvertices>")
+        
+        print()
+            
     def unloadMaterials(self):
         
         if(self.hasMaterials):
@@ -777,7 +791,20 @@ class Loader:
                     model.armature.setAnimations()
                 
                 #get dimension of object
-                model.dimension.append(scene.objects[model.name].dimensions)        
+                model.dimension.append(scene.objects[model.name].dimensions)   
+                
+                #get the individual vertices to compute convex hull
+                for prehullvertices in scene.objects[model.name].data.vertices:
+                
+                    #get the coordinate
+                    prehullvertex=prehullvertices.co
+                    
+                    #convert vertex to openGL coordinate
+                    prehullvertex=world.openGLSpaceTransform*prehullvertex                
+                    
+                    prehullvertex=self.r3d(prehullvertex)
+                    
+                    model.prehullvertices.append(prehullvertex) 
                     
                 self.modelList.append(model)
                 
