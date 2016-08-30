@@ -593,6 +593,7 @@ class World:
         self.openGLSpaceTransform=[]
         self.openGLLocalSpaceTransform=[]
         self.openGLAnimationSpaceTransform=[]
+        self.openGLArmatureSpaceTransform=[]
   
 class Loader:
     def __init__(self):
@@ -636,9 +637,15 @@ class Loader:
         world.openGLLocalSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
         world.openGLLocalSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1))
         
+        world.openGLArmatureSpaceTransform=mathutils.Matrix.Identity(4)
+        world.openGLArmatureSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
+        world.openGLArmatureSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1)) 
+        
         world.openGLAnimationSpaceTransform=mathutils.Matrix.Identity(4)
         world.openGLAnimationSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
         world.openGLAnimationSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1)) 
+        
+        
         
         self.world=world
         
@@ -778,7 +785,7 @@ class Loader:
                     model.armature=modelArmature
                     
                     #update the openGL space of the armature
-                    modelArmature.localMatrix=world.openGLAnimationSpaceTransform*armature.matrix_local*world.openGLAnimationSpaceTransform
+                    modelArmature.localMatrix=world.openGLArmatureSpaceTransform*armature.matrix_local*world.openGLArmatureSpaceTransform
                     
                     #set name
                     model.armature.name=armature.name
