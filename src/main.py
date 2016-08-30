@@ -761,11 +761,14 @@ class Loader:
                     
                     model.armature=modelArmature
                     
+                    #update the openGL space of the armature
+                    modelArmature.localMatrix=world.openGLLocalSpaceTransform*armature.matrix_local*world.openGLLocalSpaceTransform
+                    
                     #set name
                     model.armature.name=armature.name
                     
                     #set Bind Shape Matrix
-                    model.armature.bindShapeMatrix.append(scene.objects[model.name].matrix_world)
+                    model.armature.bindShapeMatrix.append(modelArmature.localMatrix)
                     
                     #copy the vertex group from the model to the armature
                     
