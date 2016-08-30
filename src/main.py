@@ -202,8 +202,8 @@ class Armature:
                 
             #append matrix data to list
             bone.localMatrixList.append(copy.copy(bone.localMatrix))
-            bone.bindPoseMatrixList.append(copy.copy(bone.bindPoseMatrix))
-            bone.inverseBindPoseMatrixList.append(copy.copy(bone.inverseBindPoseMatrix))
+            bone.bindPoseMatrixList.append(copy.copy(self.world.openGLLocalSpaceTransform*bone.bindPoseMatrix*self.world.openGLLocalSpaceTransform))
+            bone.inverseBindPoseMatrixList.append(copy.copy(self.world.openGLLocalSpaceTransform*bone.inverseBindPoseMatrix*self.world.openGLLocalSpaceTransform))
             
             #attach bone to armature class
             
@@ -327,13 +327,25 @@ class Armature:
                         animationBonePose=AnimationBonePoses()
                         animationBonePose.name=bones.name
                         
+                        parentBoneSpace=mathutils.Matrix.Identity(4)
+                        childBoneSpace=mathutils.Matrix.Identity(4)
                          
                         if(bones.parent==None):
-                            animationBonePose.pose.append(copy.copy(self.armatureObject.pose.bones[bones.name].matrix))
+                            
+                            parentBoneSpace=self.world.openGLLocalSpaceTransform*self.armatureObject.pose.bones[bones.name].matrix*parentBoneSpace*self.world.openGLLocalSpaceTransform
+                            
+                            animationBonePose.pose.append(copy.copy(parentBoneSpace))
                             
                         else:
-                            animationBonePose.pose.append(copy.copy(self.armatureObject.pose.bones[bones.name].parent.matrix.inverted()*self.armatureObject.pose.bones[bones.name].matrix))
-                        
+                            
+                            parentBoneSpace=self.armatureObject.pose.bones[bones.name].parent.matrix.inverted()*parentBoneSpace
+                            childBoneSpace=self.armatureObject.pose.bones[bones.name].matrix*childBoneSpace
+                            
+                            childBoneSpace=self.world.openGLLocalSpaceTransform*parentBoneSpace*childBoneSpace*self.world.openGLLocalSpaceTransform
+                            
+                            animationBonePose.pose.append(copy.copy(childBoneSpace))
+                               
+                            
                         keyframe.animationBonePoses.append(animationBonePose)
                         
                     
