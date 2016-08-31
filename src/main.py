@@ -329,22 +329,26 @@ class Armature:
                         
                         parentBoneSpace=mathutils.Matrix.Identity(4)
                         childBoneSpace=mathutils.Matrix.Identity(4)
+                        finalBoneSpace=mathutils.Matrix.Identity(4)
                          
                         if(bones.parent==None):
                             
-                            parentBoneSpace=self.world.openGLAnimationSpaceTransform*self.armatureObject.pose.bones[bones.name].matrix*parentBoneSpace*self.world.openGLAnimationSpaceTransform
+                            parentBoneSpace=self.world.openGLParentAnimationSpaceTransform*self.armatureObject.pose.bones[bones.name].matrix*parentBoneSpace*self.world.openGLParentAnimationSpaceTransform
                             
-                            animationBonePose.pose.append(copy.copy(parentBoneSpace))
+                            finalBoneSpace=parentBoneSpace
                             
                         else:
                             
                             parentBoneSpace=self.armatureObject.pose.bones[bones.name].parent.matrix.inverted()*parentBoneSpace
+                            
                             childBoneSpace=self.armatureObject.pose.bones[bones.name].matrix*childBoneSpace
                             
                             childBoneSpace=self.world.openGLAnimationSpaceTransform*parentBoneSpace*childBoneSpace*self.world.openGLAnimationSpaceTransform
                             
-                            animationBonePose.pose.append(copy.copy(childBoneSpace))
-                               
+                            finalBoneSpace=childBoneSpace
+                            
+                        
+                        animationBonePose.pose.append(copy.copy(finalBoneSpace))
                             
                         keyframe.animationBonePoses.append(animationBonePose)
                         
@@ -594,6 +598,7 @@ class World:
         self.openGLLocalSpaceTransform=[]
         self.openGLAnimationSpaceTransform=[]
         self.openGLArmatureSpaceTransform=[]
+        self.openGLParentAnimationSpaceTransform=[]
   
 class Loader:
     def __init__(self):
@@ -632,7 +637,7 @@ class Loader:
         world.openGLSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
         world.openGLSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
         world.openGLSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
-        
+       
         world.openGLLocalSpaceTransform=mathutils.Matrix.Identity(4)
         world.openGLLocalSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
         world.openGLLocalSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1))
@@ -645,7 +650,10 @@ class Loader:
         world.openGLAnimationSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
         world.openGLAnimationSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1)) 
         
-        
+        world.openGLParentAnimationSpaceTransform=mathutils.Matrix.Identity(4)
+        world.openGLParentAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        world.openGLParentAnimationSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
+        world.openGLParentAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
         
         self.world=world
         
