@@ -663,18 +663,6 @@ class Loader:
             
             if(models.type=="MESH"):
                 
-                #set the model as active
-                scene.objects.active=models
-                
-                #put the model in edit mode
-                bpy.ops.object.mode_set(mode='EDIT')
-                
-                #triangulize the model
-                bpy.ops.mesh.quads_convert_to_tris(quad_method='BEAUTY',ngon_method='BEAUTY')
-                
-                #put the model back in normal mode
-                bpy.ops.object.mode_set(mode='OBJECT')
-                
                 model=Model(world)
                 
                 #get name of model
