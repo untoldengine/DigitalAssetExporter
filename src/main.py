@@ -8,6 +8,7 @@ import mathutils
 import operator
 import copy
 from math import radians
+from math import degrees
 
 
 class PointLights:
@@ -333,12 +334,12 @@ class Armature:
                          
                         if(bones.parent==None):
                             
-                            parentBoneSpace=self.world.openGLParentAnimationSpaceTransform*self.armatureObject.pose.bones[bones.name].matrix*parentBoneSpace*self.world.openGLParentAnimationSpaceTransform
-                            
+                            parentBoneSpace=self.world.openGLParentAnimationSpaceTransform*self.armatureObject.pose.bones[bones.name].matrix*parentBoneSpace*self.world.openGLParentAnimationSpaceTransform.inverted()
+                    
                             finalBoneSpace=parentBoneSpace
                             
                         else:
-                            
+                               
                             parentBoneSpace=self.armatureObject.pose.bones[bones.name].parent.matrix.inverted()*parentBoneSpace
                             
                             childBoneSpace=self.armatureObject.pose.bones[bones.name].matrix*childBoneSpace
@@ -346,7 +347,6 @@ class Armature:
                             childBoneSpace=self.world.openGLAnimationSpaceTransform*parentBoneSpace*childBoneSpace*self.world.openGLAnimationSpaceTransform
                             
                             finalBoneSpace=childBoneSpace
-                            
                         
                         animationBonePose.pose.append(copy.copy(finalBoneSpace))
                             
@@ -647,13 +647,14 @@ class Loader:
         world.openGLArmatureSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1)) 
         
         world.openGLAnimationSpaceTransform=mathutils.Matrix.Identity(4)
-        world.openGLAnimationSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
-        world.openGLAnimationSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1)) 
+        #world.openGLAnimationSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
+        #world.openGLAnimationSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1)) 
         
         world.openGLParentAnimationSpaceTransform=mathutils.Matrix.Identity(4)
         world.openGLParentAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
         world.openGLParentAnimationSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
         world.openGLParentAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        
         
         self.world=world
         
