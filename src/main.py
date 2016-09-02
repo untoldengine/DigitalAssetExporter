@@ -203,8 +203,8 @@ class Armature:
                 
             #append matrix data to list
             bone.localMatrixList.append(copy.copy(bone.localMatrix))
-            bone.bindPoseMatrixList.append(copy.copy(self.world.openGLAnimationSpaceTransform*bone.bindPoseMatrix*self.world.openGLAnimationSpaceTransform))
-            bone.inverseBindPoseMatrixList.append(copy.copy(self.world.openGLAnimationSpaceTransform*bone.inverseBindPoseMatrix*self.world.openGLAnimationSpaceTransform))
+            bone.bindPoseMatrixList.append(copy.copy(bone.bindPoseMatrix))
+            bone.inverseBindPoseMatrixList.append(copy.copy(bone.inverseBindPoseMatrix))
             
             #attach bone to armature class
             
@@ -334,7 +334,7 @@ class Armature:
                          
                         if(bones.parent==None):
                             
-                            parentBoneSpace=self.world.openGLParentAnimationSpaceTransform*self.armatureObject.pose.bones[bones.name].matrix*parentBoneSpace*self.world.openGLParentAnimationSpaceTransform.inverted()
+                            parentBoneSpace=self.armatureObject.pose.bones[bones.name].matrix*parentBoneSpace
                     
                             finalBoneSpace=parentBoneSpace
                             
@@ -344,9 +344,10 @@ class Armature:
                             
                             childBoneSpace=self.armatureObject.pose.bones[bones.name].matrix*childBoneSpace
                             
-                            childBoneSpace=self.world.openGLAnimationSpaceTransform*parentBoneSpace*childBoneSpace*self.world.openGLAnimationSpaceTransform
+                            childBoneSpace=parentBoneSpace*childBoneSpace
                             
                             finalBoneSpace=childBoneSpace
+                            
                         
                         animationBonePose.pose.append(copy.copy(finalBoneSpace))
                             
@@ -646,14 +647,11 @@ class Loader:
         world.openGLArmatureSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
         world.openGLArmatureSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1)) 
         
-        world.openGLAnimationSpaceTransform=mathutils.Matrix.Identity(4)
-        #world.openGLAnimationSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
-        #world.openGLAnimationSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1)) 
-        
-        world.openGLParentAnimationSpaceTransform=mathutils.Matrix.Identity(4)
-        world.openGLParentAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
-        world.openGLParentAnimationSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
-        world.openGLParentAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        world.openGLModelerAnimationSpaceTransform=mathutils.Matrix.Identity(4)
+        world.openGLModelerAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        world.openGLModelerAnimationSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
+        world.openGLModelerAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        world.openGLModelerAnimationSpaceTransform=world.openGLModelerAnimationSpaceTransform.inverted()
         
         
         self.world=world
@@ -782,7 +780,7 @@ class Loader:
                     model.armature=modelArmature
                     
                     #update the openGL space of the armature
-                    modelArmature.localMatrix=world.openGLArmatureSpaceTransform*armature.matrix_local*world.openGLArmatureSpaceTransform
+                    modelArmature.localMatrix=world.openGLArmatureSpaceTransform.inverted()*armature.matrix_local*world.openGLArmatureSpaceTransform
                     
                     #set name
                     model.armature.name=armature.name
