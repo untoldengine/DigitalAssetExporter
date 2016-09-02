@@ -96,6 +96,7 @@ class Armature:
         self.bindShapeMatrix=[]
         self.accumulatedParentMatrix=[]
         self.listOfParents=[]
+        self.modelerAnimationSpaceTransform=[]
         
     def getListOfParents(self,bone):
         
@@ -213,6 +214,7 @@ class Armature:
     def unloadBones(self):
         
         print("<armature>",end="")
+        
         print()
         print("<bind_shape_matrix>",end="")
         for m in self.bindShapeMatrix:
@@ -366,6 +368,16 @@ class Armature:
         if(self.hasAnimation is True):
             
             print("<animations>")
+            
+            print("<modeler_animation_transform>",end="")
+            for m in self.modelerAnimationSpaceTransform:
+                print("%f %f %f %f "%tuple(m.row[0]),end="")
+                print("%f %f %f %f "%tuple(m.row[1]),end="")
+                print("%f %f %f %f "%tuple(m.row[2]),end="")
+                print("%f %f %f %f"%tuple(m.row[3]),end="")
+            print("</modeler_animation_transform>")
+            
+            print()
             for animation in self.animations:
                 #print animations
                 print("<animation name=\"%s\" fps=\"%f\">"%(animation.name,animation.fps))
@@ -787,6 +799,9 @@ class Loader:
                     
                     #set Bind Shape Matrix
                     model.armature.bindShapeMatrix.append(modelArmature.localMatrix)
+                    
+                    #set the modeler animation transformation space
+                    model.armature.modelerAnimationSpaceTransform.append(world.openGLModelerAnimationSpaceTransform)
                     
                     #copy the vertex group from the model to the armature
                     
