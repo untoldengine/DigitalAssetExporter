@@ -8,6 +8,7 @@ import mathutils
 import operator
 import copy
 from math import radians
+from math import degrees
 
 
 class PointLights:
@@ -95,6 +96,7 @@ class Armature:
         self.bindShapeMatrix=[]
         self.accumulatedParentMatrix=[]
         self.listOfParents=[]
+        self.modelerAnimationSpaceTransform=[]
         
     def getListOfParents(self,bone):
         
@@ -212,6 +214,7 @@ class Armature:
     def unloadBones(self):
         
         print("<armature>",end="")
+        
         print()
         print("<bind_shape_matrix>",end="")
         for m in self.bindShapeMatrix:
@@ -327,13 +330,29 @@ class Armature:
                         animationBonePose=AnimationBonePoses()
                         animationBonePose.name=bones.name
                         
+                        parentBoneSpace=mathutils.Matrix.Identity(4)
+                        childBoneSpace=mathutils.Matrix.Identity(4)
+                        finalBoneSpace=mathutils.Matrix.Identity(4)
                          
                         if(bones.parent==None):
-                            animationBonePose.pose.append(copy.copy(self.armatureObject.pose.bones[bones.name].matrix))
+                            
+                            parentBoneSpace=self.armatureObject.pose.bones[bones.name].matrix*parentBoneSpace
+                    
+                            finalBoneSpace=parentBoneSpace
                             
                         else:
-                            animationBonePose.pose.append(copy.copy(self.armatureObject.pose.bones[bones.name].parent.matrix.inverted()*self.armatureObject.pose.bones[bones.name].matrix))
+                               
+                            parentBoneSpace=self.armatureObject.pose.bones[bones.name].parent.matrix.inverted()*parentBoneSpace
+                            
+                            childBoneSpace=self.armatureObject.pose.bones[bones.name].matrix*childBoneSpace
+                            
+                            childBoneSpace=parentBoneSpace*childBoneSpace
+                            
+                            finalBoneSpace=childBoneSpace
+                            
                         
+                        animationBonePose.pose.append(copy.copy(finalBoneSpace))
+                            
                         keyframe.animationBonePoses.append(animationBonePose)
                         
                     
@@ -349,6 +368,16 @@ class Armature:
         if(self.hasAnimation is True):
             
             print("<animations>")
+            
+            print("<modeler_animation_transform>",end="")
+            for m in self.modelerAnimationSpaceTransform:
+                print("%f %f %f %f "%tuple(m.row[0]),end="")
+                print("%f %f %f %f "%tuple(m.row[1]),end="")
+                print("%f %f %f %f "%tuple(m.row[2]),end="")
+                print("%f %f %f %f"%tuple(m.row[3]),end="")
+            print("</modeler_animation_transform>")
+            
+            print()
             for animation in self.animations:
                 #print animations
                 print("<animation name=\"%s\" fps=\"%f\">"%(animation.name,animation.fps))
@@ -580,7 +609,9 @@ class World:
     def __init__(self):
         self.openGLSpaceTransform=[]
         self.openGLLocalSpaceTransform=[]
-        
+        self.openGLAnimationSpaceTransform=[]
+        self.openGLArmatureSpaceTransform=[]
+        self.openGLParentAnimationSpaceTransform=[]
   
 class Loader:
     def __init__(self):
@@ -619,10 +650,21 @@ class Loader:
         world.openGLSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
         world.openGLSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
         world.openGLSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
-        
+       
         world.openGLLocalSpaceTransform=mathutils.Matrix.Identity(4)
         world.openGLLocalSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
         world.openGLLocalSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1))
+        
+        world.openGLArmatureSpaceTransform=mathutils.Matrix.Identity(4)
+        world.openGLArmatureSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
+        world.openGLArmatureSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1)) 
+        
+        world.openGLModelerAnimationSpaceTransform=mathutils.Matrix.Identity(4)
+        world.openGLModelerAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        world.openGLModelerAnimationSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
+        world.openGLModelerAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        world.openGLModelerAnimationSpaceTransform=world.openGLModelerAnimationSpaceTransform.inverted()
+        
         
         self.world=world
         
@@ -630,18 +672,6 @@ class Loader:
         for models in scene.objects:
             
             if(models.type=="MESH"):
-                
-                #set the model as active
-                scene.objects.active=models
-                
-                #put the model in edit mode
-                bpy.ops.object.mode_set(mode='EDIT')
-                
-                #triangulize the model
-                bpy.ops.mesh.quads_convert_to_tris(quad_method='BEAUTY',ngon_method='BEAUTY')
-                
-                #put the model back in normal mode
-                bpy.ops.object.mode_set(mode='OBJECT')
                 
                 model=Model(world)
                 
@@ -761,11 +791,17 @@ class Loader:
                     
                     model.armature=modelArmature
                     
+                    #update the openGL space of the armature
+                    modelArmature.localMatrix=world.openGLArmatureSpaceTransform.inverted()*armature.matrix_local*world.openGLArmatureSpaceTransform
+                    
                     #set name
                     model.armature.name=armature.name
                     
                     #set Bind Shape Matrix
-                    model.armature.bindShapeMatrix.append(scene.objects[model.name].matrix_world)
+                    model.armature.bindShapeMatrix.append(modelArmature.localMatrix)
+                    
+                    #set the modeler animation transformation space
+                    model.armature.modelerAnimationSpaceTransform.append(world.openGLModelerAnimationSpaceTransform)
                     
                     #copy the vertex group from the model to the armature
                     
