@@ -198,7 +198,7 @@ class Armature:
             bone.index=self.vertexGroupDict[bone.name]
             
             #get vertex weights for bone            
-            for i in range(0,len(self.vertexGroupWeight),self.numberOfBones):
+            for i in range(0,len(self.vertexGroupWeight)-self.numberOfBones,self.numberOfBones):
                 
                 bone.vertexWeights.append(self.vertexGroupWeight[bone.index+i])
                 
