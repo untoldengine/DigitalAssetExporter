@@ -650,19 +650,34 @@ class Loader:
         world.openGLSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
         world.openGLSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
         world.openGLSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
-       
+
+        #metal transformation
+        world.openGLSpaceTransform *= mathutils.Matrix.Scale(-1, 4, (1, 0, 0))
+        world.openGLSpaceTransform *= mathutils.Matrix.Rotation(radians(180), 4, "Z")
+
+
         world.openGLLocalSpaceTransform=mathutils.Matrix.Identity(4)
         world.openGLLocalSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
         world.openGLLocalSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1))
-        
+
+
         world.openGLArmatureSpaceTransform=mathutils.Matrix.Identity(4)
         world.openGLArmatureSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
-        world.openGLArmatureSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1)) 
+        world.openGLArmatureSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1))
+
+        # metal transformation
+        world.openGLArmatureSpaceTransform *= mathutils.Matrix.Scale(-1, 4, (1, 0, 0))
+        world.openGLArmatureSpaceTransform *= mathutils.Matrix.Rotation(radians(180), 4, "Z")
         
         world.openGLModelerAnimationSpaceTransform=mathutils.Matrix.Identity(4)
         world.openGLModelerAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
         world.openGLModelerAnimationSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
         world.openGLModelerAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+
+        # metal transformation
+        world.openGLModelerAnimationSpaceTransform *= mathutils.Matrix.Scale(-1, 4, (1, 0, 0))
+        world.openGLModelerAnimationSpaceTransform *= mathutils.Matrix.Rotation(radians(180), 4, "Z")
+
         world.openGLModelerAnimationSpaceTransform=world.openGLModelerAnimationSpaceTransform.inverted()
         
         
