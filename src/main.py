@@ -196,9 +196,9 @@ class Armature:
                 
             #look for the vertex group
             bone.index=self.vertexGroupDict[bone.name]
-            
+
             #get vertex weights for bone            
-            for i in range(0,len(self.vertexGroupWeight)-self.numberOfBones,self.numberOfBones):
+            for i in range(0,len(self.vertexGroupWeight),self.numberOfBones):
                 
                 bone.vertexWeights.append(self.vertexGroupWeight[bone.index+i])
                 
@@ -262,7 +262,7 @@ class Armature:
                 
             print("</rest_pose_matrix>")
             
-            print("<vertex_weights>",end="")
+            print("<vertex_weights weight_count=\"%d\">"%(len(bone.vertexWeights)),end="")
             for vw in bone.vertexWeights:
                 print("%f "%vw,end="")
             print("</vertex_weights>")
