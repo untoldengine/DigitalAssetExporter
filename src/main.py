@@ -697,7 +697,7 @@ class Loader:
                 matrix_local=world.openGLLocalSpaceTransform*scene.objects[model.name].matrix_local*world.openGLLocalSpaceTransform
                 
                 #negate the z-axis
-                matrix_local[2][3]=-matrix_local[2][3]
+                #matrix_local[2][3]=-matrix_local[2][3]
                 
                 model.localSpace.append(matrix_local)
                 
