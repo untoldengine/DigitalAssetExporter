@@ -196,9 +196,9 @@ class Armature:
                 
             #look for the vertex group
             bone.index=self.vertexGroupDict[bone.name]
-            
+
             #get vertex weights for bone            
-            for i in range(0,len(self.vertexGroupWeight)-self.numberOfBones,self.numberOfBones):
+            for i in range(0,len(self.vertexGroupWeight),self.numberOfBones):
                 
                 bone.vertexWeights.append(self.vertexGroupWeight[bone.index+i])
                 
@@ -262,7 +262,7 @@ class Armature:
                 
             print("</rest_pose_matrix>")
             
-            print("<vertex_weights>",end="")
+            print("<vertex_weights weight_count=\"%d\">"%(len(bone.vertexWeights)),end="")
             for vw in bone.vertexWeights:
                 print("%f "%vw,end="")
             print("</vertex_weights>")
@@ -650,19 +650,34 @@ class Loader:
         world.openGLSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
         world.openGLSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
         world.openGLSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
-       
+
+        #metal transformation
+        world.openGLSpaceTransform *= mathutils.Matrix.Scale(-1, 4, (1, 0, 0))
+        world.openGLSpaceTransform *= mathutils.Matrix.Rotation(radians(180), 4, "Z")
+
+
         world.openGLLocalSpaceTransform=mathutils.Matrix.Identity(4)
         world.openGLLocalSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
         world.openGLLocalSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1))
-        
+
+
         world.openGLArmatureSpaceTransform=mathutils.Matrix.Identity(4)
         world.openGLArmatureSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
-        world.openGLArmatureSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1)) 
+        world.openGLArmatureSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1))
+
+        # metal transformation
+        world.openGLArmatureSpaceTransform *= mathutils.Matrix.Scale(-1, 4, (1, 0, 0))
+        world.openGLArmatureSpaceTransform *= mathutils.Matrix.Rotation(radians(180), 4, "Z")
         
         world.openGLModelerAnimationSpaceTransform=mathutils.Matrix.Identity(4)
         world.openGLModelerAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
         world.openGLModelerAnimationSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
         world.openGLModelerAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+
+        # metal transformation
+        world.openGLModelerAnimationSpaceTransform *= mathutils.Matrix.Scale(-1, 4, (1, 0, 0))
+        world.openGLModelerAnimationSpaceTransform *= mathutils.Matrix.Rotation(radians(180), 4, "Z")
+
         world.openGLModelerAnimationSpaceTransform=world.openGLModelerAnimationSpaceTransform.inverted()
         
         
@@ -682,7 +697,7 @@ class Loader:
                 matrix_local=world.openGLLocalSpaceTransform*scene.objects[model.name].matrix_local*world.openGLLocalSpaceTransform
                 
                 #negate the z-axis
-                matrix_local[2][3]=-matrix_local[2][3]
+                #matrix_local[2][3]=-matrix_local[2][3]
                 
                 model.localSpace.append(matrix_local)
                 
