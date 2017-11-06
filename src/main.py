@@ -687,6 +687,26 @@ class Loader:
         for models in scene.objects:
             
             if(models.type=="MESH"):
+
+
+                #triangularized the models
+
+                # set the model as active
+                scene.objects.active = models
+
+                # put the model in edit mode
+                bpy.ops.object.mode_set(mode='EDIT')
+
+                # select all parts of the model
+                bpy.ops.mesh.select_all(action='SELECT')
+
+                # triangulize the model
+                bpy.ops.mesh.quads_convert_to_tris(quad_method='BEAUTY', ngon_method='BEAUTY')
+
+                # put the model back in normal mode
+                bpy.ops.object.mode_set(mode='OBJECT')
+
+                #end triangularization
                 
                 model=Model(world)
                 
