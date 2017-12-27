@@ -1,7 +1,9 @@
 '''
 Created on Sep 25, 2014
 
-@author: haroldserrano
+Digital Asset Loader script for the Untold Engine
+
+@author: Harold Serrano
 '''
 import bpy
 import mathutils
@@ -776,26 +778,30 @@ class Loader:
                     
                 #check if model has materials
                 
-                if(len(scene.objects[model.name].material_slots)>0):
+                if(len(scene.objects[model.name].material_slots)<1):
+
+                    meshMaterial=bpy.data.materials.new(name="NewMaterial")
+                    scene.objects[model.name].data.materials.append(meshMaterial)
+
                 
-                     #get material index
-                    for materialIndex in scene.objects[model.name].data.polygons:
-                        #need to append it three for each triangle vertex
-                        model.materialIndex.append(materialIndex.material_index)
-                        model.materialIndex.append(materialIndex.material_index)
-                        model.materialIndex.append(materialIndex.material_index)
-                        
-                        
-                    #get model material slots
-                    for materialSlot in scene.objects[model.name].material_slots:
-                        
-                        model.materials.diffuse.append(bpy.data.materials[materialSlot.name].diffuse_color)
-                        model.materials.specular.append(bpy.data.materials[materialSlot.name].specular_color)
-                        model.materials.diffuse_intensity.append(bpy.data.materials[materialSlot.name].diffuse_intensity)
-                        model.materials.specular_intensity.append(bpy.data.materials[materialSlot.name].specular_intensity)
-                        model.materials.specular_hardness.append(bpy.data.materials[materialSlot.name].specular_hardness)
-                        
-                    model.hasMaterials=True
+                #get material index
+                for materialIndex in scene.objects[model.name].data.polygons:
+                    #need to append it three for each triangle vertex
+                    model.materialIndex.append(materialIndex.material_index)
+                    model.materialIndex.append(materialIndex.material_index)
+                    model.materialIndex.append(materialIndex.material_index)
+                    
+                    
+                #get model material slots
+                for materialSlot in scene.objects[model.name].material_slots:
+                    
+                    model.materials.diffuse.append(bpy.data.materials[materialSlot.name].diffuse_color)
+                    model.materials.specular.append(bpy.data.materials[materialSlot.name].specular_color)
+                    model.materials.diffuse_intensity.append(bpy.data.materials[materialSlot.name].diffuse_intensity)
+                    model.materials.specular_intensity.append(bpy.data.materials[materialSlot.name].specular_intensity)
+                    model.materials.specular_hardness.append(bpy.data.materials[materialSlot.name].specular_hardness)
+                    
+                model.hasMaterials=True
                 
                 
                 #get texture name
