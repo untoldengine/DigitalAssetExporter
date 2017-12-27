@@ -16,19 +16,13 @@ from math import degrees
 class PointLights:
     def __init__(self):
         self.name=None
-        self.falloffDistance=None
         self.energy=None
-        self.linearAttenuation=None
-        self.quadraticAttenuation=None
         self.localSpace=[]
         self.color=[]
         
     def unloadPointLightData(self):
         
-        print("<falloff_distance>%f</falloff_distance>"%self.falloffDistance)
         print("<energy>%f</energy>"%self.energy)
-        print("<linear_attenuation>%f</linear_attenuation>"%self.linearAttenuation)
-        print("<quadratic_attenuation>%f</quadratic_attenuation>"%self.quadraticAttenuation)
         
         print("<light_color>",end="")
         for s in self.color:
@@ -895,30 +889,23 @@ class Loader:
             
             if(lights.type=="LAMP"):
                 
-                light=PointLights()
-                
-                light.name=lights.name
-                
-                #light color
-                light.color.append(scene.objects[light.name].data.color)
-                
-                #Light energy
-                light.energy=scene.objects[light.name].data.energy
-                
-                #light fall off distance
-                light.falloffDistance=scene.objects[light.name].data.distance
-                
-                #light linear attenuation
-                light.linearAttenuation=scene.objects[light.name].data.linear_attenuation
-                
-                #light quadratic attenuation
-                light.quadraticAttenuation=scene.objects[light.name].data.quadratic_attenuation
-                
-                #light local space
-                light.localSpace.append(self.world.metalSpaceTransform*scene.objects[light.name].matrix_local)
-                
-                #append the lights to the list
-                self.pointLightsList.append(light)
+                if(bpy.data.lamps[lights.name].type=="SUN"):
+
+                    light=PointLights()
+                    
+                    light.name=lights.name
+                    
+                    #light color
+                    light.color.append(scene.objects[light.name].data.color)
+                    
+                    #Light energy
+                    light.energy=scene.objects[light.name].data.energy
+                    
+                    #light local space
+                    light.localSpace.append(self.world.metalLocalSpaceTransform*scene.objects[light.name].matrix_local*self.world.metalLocalSpaceTransform)
+                    
+                    #append the lights to the list
+                    self.pointLightsList.append(light)
     
     def loadCamera(self):
         pass
