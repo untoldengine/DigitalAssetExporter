@@ -607,11 +607,11 @@ class Camera:
 
 class World:
     def __init__(self):
-        self.openGLSpaceTransform=[]
-        self.openGLLocalSpaceTransform=[]
-        self.openGLAnimationSpaceTransform=[]
-        self.openGLArmatureSpaceTransform=[]
-        self.openGLParentAnimationSpaceTransform=[]
+        self.metalSpaceTransform=[]
+        self.metalLocalSpaceTransform=[]
+        self.metalAnimationSpaceTransform=[]
+        self.metalArmatureSpaceTransform=[]
+        self.metalParentAnimationSpaceTransform=[]
   
 class Loader:
     def __init__(self):
@@ -645,40 +645,40 @@ class Loader:
         
         #get world matrix
         world=World()
-        #convert world to opengl coords
-        world.openGLSpaceTransform=mathutils.Matrix.Identity(4)
-        world.openGLSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
-        world.openGLSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
-        world.openGLSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        #convert world to metal coords
+        world.metalSpaceTransform=mathutils.Matrix.Identity(4)
+        world.metalSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        world.metalSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
+        world.metalSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
 
         #metal transformation
-        world.openGLSpaceTransform *= mathutils.Matrix.Scale(-1, 4, (1, 0, 0))
-        world.openGLSpaceTransform *= mathutils.Matrix.Rotation(radians(180), 4, "Z")
+        world.metalSpaceTransform *= mathutils.Matrix.Scale(-1, 4, (1, 0, 0))
+        world.metalSpaceTransform *= mathutils.Matrix.Rotation(radians(180), 4, "Z")
 
 
-        world.openGLLocalSpaceTransform=mathutils.Matrix.Identity(4)
-        world.openGLLocalSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
-        world.openGLLocalSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1))
+        world.metalLocalSpaceTransform=mathutils.Matrix.Identity(4)
+        world.metalLocalSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
+        world.metalLocalSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1))
 
 
-        world.openGLArmatureSpaceTransform=mathutils.Matrix.Identity(4)
-        world.openGLArmatureSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
-        world.openGLArmatureSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1))
+        world.metalArmatureSpaceTransform=mathutils.Matrix.Identity(4)
+        world.metalArmatureSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
+        world.metalArmatureSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1))
 
         # metal transformation
-        world.openGLArmatureSpaceTransform *= mathutils.Matrix.Scale(-1, 4, (1, 0, 0))
-        world.openGLArmatureSpaceTransform *= mathutils.Matrix.Rotation(radians(180), 4, "Z")
+        world.metalArmatureSpaceTransform *= mathutils.Matrix.Scale(-1, 4, (1, 0, 0))
+        world.metalArmatureSpaceTransform *= mathutils.Matrix.Rotation(radians(180), 4, "Z")
         
-        world.openGLModelerAnimationSpaceTransform=mathutils.Matrix.Identity(4)
-        world.openGLModelerAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
-        world.openGLModelerAnimationSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
-        world.openGLModelerAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        world.metalModelerAnimationSpaceTransform=mathutils.Matrix.Identity(4)
+        world.metalModelerAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        world.metalModelerAnimationSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
+        world.metalModelerAnimationSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
 
         # metal transformation
-        world.openGLModelerAnimationSpaceTransform *= mathutils.Matrix.Scale(-1, 4, (1, 0, 0))
-        world.openGLModelerAnimationSpaceTransform *= mathutils.Matrix.Rotation(radians(180), 4, "Z")
+        world.metalModelerAnimationSpaceTransform *= mathutils.Matrix.Scale(-1, 4, (1, 0, 0))
+        world.metalModelerAnimationSpaceTransform *= mathutils.Matrix.Rotation(radians(180), 4, "Z")
 
-        world.openGLModelerAnimationSpaceTransform=world.openGLModelerAnimationSpaceTransform.inverted()
+        world.metalModelerAnimationSpaceTransform=world.metalModelerAnimationSpaceTransform.inverted()
         
         
         self.world=world
@@ -714,7 +714,7 @@ class Loader:
                 model.name=models.name
                 
                 #get local matrix
-                matrix_local=world.openGLLocalSpaceTransform*scene.objects[model.name].matrix_local*world.openGLLocalSpaceTransform
+                matrix_local=world.metalLocalSpaceTransform*scene.objects[model.name].matrix_local*world.metalLocalSpaceTransform
                 
                 #negate the z-axis
                 #matrix_local[2][3]=-matrix_local[2][3]
@@ -731,8 +731,8 @@ class Loader:
                     
                     vertex=scene.objects[model.name].data.vertices[indices.vertex_index].co
                     
-                    #convert vertex to openGL coordinate
-                    vertex=world.openGLSpaceTransform*vertex                
+                    #convert vertex to metal coordinate
+                    vertex=world.metalSpaceTransform*vertex                
                     
                     vertex=self.r3d(vertex)
                     
@@ -742,8 +742,8 @@ class Loader:
                     
                     normal=scene.objects[model.name].data.vertices[indices.vertex_index].normal
                     
-                    #convert normal to OpenGL coordinate
-                    normal=world.openGLSpaceTransform*normal
+                    #convert normal to metal coordinate
+                    normal=world.metalSpaceTransform*normal
                     
                     normal=self.r3d(normal)
                     
@@ -826,8 +826,8 @@ class Loader:
                     
                     model.armature=modelArmature
                     
-                    #update the openGL space of the armature
-                    modelArmature.localMatrix=world.openGLArmatureSpaceTransform.inverted()*armature.matrix_local*world.openGLArmatureSpaceTransform
+                    #update the metal space of the armature
+                    modelArmature.localMatrix=world.metalArmatureSpaceTransform.inverted()*armature.matrix_local*world.metalArmatureSpaceTransform
                     
                     #set name
                     model.armature.name=armature.name
@@ -836,7 +836,7 @@ class Loader:
                     model.armature.bindShapeMatrix.append(modelArmature.localMatrix)
                     
                     #set the modeler animation transformation space
-                    model.armature.modelerAnimationSpaceTransform.append(world.openGLModelerAnimationSpaceTransform)
+                    model.armature.modelerAnimationSpaceTransform.append(world.metalModelerAnimationSpaceTransform)
                     
                     #copy the vertex group from the model to the armature
                     
@@ -870,8 +870,8 @@ class Loader:
                     #get the coordinate
                     prehullvertex=prehullvertices.co
                     
-                    #convert vertex to openGL coordinate
-                    prehullvertex=world.openGLSpaceTransform*prehullvertex                
+                    #convert vertex to metal coordinate
+                    prehullvertex=world.metalSpaceTransform*prehullvertex                
                     
                     prehullvertex=self.r3d(prehullvertex)
                     
@@ -909,7 +909,7 @@ class Loader:
                 light.quadraticAttenuation=scene.objects[light.name].data.quadratic_attenuation
                 
                 #light local space
-                light.localSpace.append(self.world.openGLSpaceTransform*scene.objects[light.name].matrix_local)
+                light.localSpace.append(self.world.metalSpaceTransform*scene.objects[light.name].matrix_local)
                 
                 #append the lights to the list
                 self.pointLightsList.append(light)
