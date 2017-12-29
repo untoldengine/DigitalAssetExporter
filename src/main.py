@@ -12,6 +12,32 @@ import copy
 from math import radians
 from math import degrees
 
+#class to write to a file
+
+class ExportFile:
+    def __init__(self, filePath):
+        self.filePath=filePath
+        self.fileToWrite=None
+        
+    def openFile(self):
+        self.fileToWrite=open(self.filePath, 'w', encoding='utf-8')
+        
+    
+    def writeData(self, dataToWrite):
+        
+        self.fileToWrite.write(dataToWrite)
+
+    def writeData(self, dataToWrite, space=None):
+        
+        self.fileToWrite.write(dataToWrite+' ')
+        
+    
+    def closeFile(self):
+        self.fileToWrite.close()
+        
+        
+        return {'FINISHED'}
+
 
 class PointLights:
     def __init__(self):
@@ -966,11 +992,18 @@ def main():
     scene=bpy.context.scene
     scene.frame_set(0)
     
+    #open the file to write
+    exportFile=ExportFile("/Users/haroldserrano/Downloads/scripttext.txt")
+    exportFile.openFile()
+
     loader=Loader()
     loader.loadModel()
     loader.loadPointLights()
     
     loader.unloadData()
+
+    #close the file
+    exportFile.closeFile()
     
 
 if __name__ == '__main__':
