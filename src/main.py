@@ -24,13 +24,14 @@ class ExportFile:
         
     
     def writeData(self, dataToWrite, space=None):
+
+        dataToWrite=str(dataToWrite)
         
         if space is None:
             self.fileToWrite.write(dataToWrite+"\n")
         else:
 
-            self.fileToWrite.write(dataToWrite+' ')
-        
+            self.fileToWrite.write(dataToWrite)
     
     def closeFile(self):
         self.fileToWrite.close()
@@ -958,6 +959,7 @@ class Loader:
         
         for model in self.modelList:
             
+            exportFile.writeData("<!--Start of Mesh Data-->")
             exportFile.writeData("<mesh name=\"%s\" vertex_count=\"%d\" index_count=\"%d\">"%(model.name,len(model.coordinates.vertices),len(model.coordinates.index)))
             
             model.unloadModelData(exportFile)
