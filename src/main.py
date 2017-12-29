@@ -23,13 +23,13 @@ class ExportFile:
         self.fileToWrite=open(self.filePath, 'w', encoding='utf-8')
         
     
-    def writeData(self, dataToWrite):
-        
-        self.fileToWrite.write(dataToWrite)
-
     def writeData(self, dataToWrite, space=None):
         
-        self.fileToWrite.write(dataToWrite+' ')
+        if space is None:
+            self.fileToWrite.write(dataToWrite+"\n")
+        else:
+
+            self.fileToWrite.write(dataToWrite+' ')
         
     
     def closeFile(self):
@@ -46,22 +46,22 @@ class PointLights:
         self.localSpace=[]
         self.color=[]
         
-    def unloadPointLightData(self):
+    def unloadPointLightData(self,exportFile):
         
-        print("<energy>%f</energy>"%self.energy)
+        exportFile.writeData("<energy>%f</energy>"%self.energy)
         
-        print("<light_color>",end="")
+        exportFile.writeData("<light_color>",' ')
         for s in self.color:
-            print("%f %f %f 1.0"%tuple(s),end="")
-        print("</light_color>") 
+            exportFile.writeData("%f %f %f 1.0"%tuple(s),' ')
+        exportFile.writeData("</light_color>") 
         
-        print("<local_matrix>",end="")
+        exportFile.writeData("<local_matrix>",' ')
         for m in self.localSpace:
-            print("%f %f %f %f "%tuple(m.row[0]),end="")
-            print("%f %f %f %f "%tuple(m.row[1]),end="")
-            print("%f %f %f %f "%tuple(m.row[2]),end="")
-            print("%f %f %f %f"%tuple(m.row[3]),end="")
-        print("</local_matrix>")
+            exportFile.writeData("%f %f %f %f "%tuple(m.row[0]),' ')
+            exportFile.writeData("%f %f %f %f "%tuple(m.row[1]),' ')
+            exportFile.writeData("%f %f %f %f "%tuple(m.row[2]),' ')
+            exportFile.writeData("%f %f %f %f"%tuple(m.row[3]),' ')
+        exportFile.writeData("</local_matrix>")
         
         
     
@@ -233,68 +233,68 @@ class Armature:
             
             self.bones.append(bone)
 
-    def unloadBones(self):
+    def unloadBones(self,exportFile):
         
-        print("<armature>",end="")
+        exportFile.writeData("<armature>",' ')
         
-        print()
-        print("<bind_shape_matrix>",end="")
+         
+        exportFile.writeData("<bind_shape_matrix>",' ')
         for m in self.bindShapeMatrix:
-            print("%f %f %f %f "%tuple(m.row[0]),end="")
-            print("%f %f %f %f "%tuple(m.row[1]),end="")
-            print("%f %f %f %f "%tuple(m.row[2]),end="")
-            print("%f %f %f %f"%tuple(m.row[3]),end="")
-        print("</bind_shape_matrix>")
+            exportFile.writeData("%f %f %f %f "%tuple(m.row[0]),' ')
+            exportFile.writeData("%f %f %f %f "%tuple(m.row[1]),' ')
+            exportFile.writeData("%f %f %f %f "%tuple(m.row[2]),' ')
+            exportFile.writeData("%f %f %f %f"%tuple(m.row[3]),' ')
+        exportFile.writeData("</bind_shape_matrix>")
         
         for bone in self.bones:
-            print()
-            print("<bone name=\"%s\" parent=\"%s\">"%(bone.name,bone.parent))
-            print("<local_matrix>",end="")
+             
+            exportFile.writeData("<bone name=\"%s\" parent=\"%s\">"%(bone.name,bone.parent))
+            exportFile.writeData("<local_matrix>",' ')
             for m in bone.localMatrixList:
-                print("%f %f %f %f "%tuple(m.row[0]),end="")
-                print("%f %f %f %f "%tuple(m.row[1]),end="")
-                print("%f %f %f %f "%tuple(m.row[2]),end="")
-                print("%f %f %f %f"%tuple(m.row[3]),end="")
-            print("</local_matrix>")
+                exportFile.writeData("%f %f %f %f "%tuple(m.row[0]),' ')
+                exportFile.writeData("%f %f %f %f "%tuple(m.row[1]),' ')
+                exportFile.writeData("%f %f %f %f "%tuple(m.row[2]),' ')
+                exportFile.writeData("%f %f %f %f"%tuple(m.row[3]),' ')
+            exportFile.writeData("</local_matrix>")
             
-            print("<bind_pose_matrix>",end="")
+            exportFile.writeData("<bind_pose_matrix>",' ')
             for m in bone.bindPoseMatrixList:
-                print("%f %f %f %f "%tuple(m.row[0]),end="")
-                print("%f %f %f %f "%tuple(m.row[1]),end="")
-                print("%f %f %f %f "%tuple(m.row[2]),end="")
-                print("%f %f %f %f"%tuple(m.row[3]),end="")
+                exportFile.writeData("%f %f %f %f "%tuple(m.row[0]),' ')
+                exportFile.writeData("%f %f %f %f "%tuple(m.row[1]),' ')
+                exportFile.writeData("%f %f %f %f "%tuple(m.row[2]),' ')
+                exportFile.writeData("%f %f %f %f"%tuple(m.row[3]),' ')
             
-            print("</bind_pose_matrix>")
+            exportFile.writeData("</bind_pose_matrix>")
             
-            print("<inverse_bind_pose_matrix>",end="")
+            exportFile.writeData("<inverse_bind_pose_matrix>",' ')
             for m in bone.inverseBindPoseMatrixList:
-                print("%f %f %f %f "%tuple(m.row[0]),end="")
-                print("%f %f %f %f "%tuple(m.row[1]),end="")
-                print("%f %f %f %f "%tuple(m.row[2]),end="")
-                print("%f %f %f %f"%tuple(m.row[3]),end="")
+                exportFile.writeData("%f %f %f %f "%tuple(m.row[0]),' ')
+                exportFile.writeData("%f %f %f %f "%tuple(m.row[1]),' ')
+                exportFile.writeData("%f %f %f %f "%tuple(m.row[2]),' ')
+                exportFile.writeData("%f %f %f %f"%tuple(m.row[3]),' ')
                 
-            print("</inverse_bind_pose_matrix>")
+            exportFile.writeData("</inverse_bind_pose_matrix>")
             
-            print("<rest_pose_matrix>",end="")
+            exportFile.writeData("<rest_pose_matrix>",' ')
             for m in bone.restPoseMatrixList:
-                print("%f %f %f %f "%tuple(m.row[0]),end="")
-                print("%f %f %f %f "%tuple(m.row[1]),end="")
-                print("%f %f %f %f "%tuple(m.row[2]),end="")
-                print("%f %f %f %f"%tuple(m.row[3]),end="")
+                exportFile.writeData("%f %f %f %f "%tuple(m.row[0]),' ')
+                exportFile.writeData("%f %f %f %f "%tuple(m.row[1]),' ')
+                exportFile.writeData("%f %f %f %f "%tuple(m.row[2]),' ')
+                exportFile.writeData("%f %f %f %f"%tuple(m.row[3]),' ')
                 
-            print("</rest_pose_matrix>")
+            exportFile.writeData("</rest_pose_matrix>")
             
-            print("<vertex_weights weight_count=\"%d\">"%(len(bone.vertexWeights)),end="")
+            exportFile.writeData("<vertex_weights weight_count=\"%d\">"%(len(bone.vertexWeights)),' ')
             for vw in bone.vertexWeights:
-                print("%f "%vw,end="")
-            print("</vertex_weights>")
+                exportFile.writeData("%f "%vw,' ')
+            exportFile.writeData("</vertex_weights>")
             
-            print("</bone>")
+            exportFile.writeData("</bone>")
         
         
-        print("</armature>")
+        exportFile.writeData("</armature>")
         
-        print()
+         
     
     def frameToTime(self,frame):
         fps=bpy.context.scene.render.fps
@@ -385,47 +385,47 @@ class Armature:
                 self.animations.append(animation)    
                     
     
-    def unloadAnimations(self):
+    def unloadAnimations(self,exportFile):
         
         if(self.hasAnimation is True):
             
-            print("<animations>")
+            exportFile.writeData("<animations>")
             
-            print("<modeler_animation_transform>",end="")
+            exportFile.writeData("<modeler_animation_transform>",' ')
             for m in self.modelerAnimationSpaceTransform:
-                print("%f %f %f %f "%tuple(m.row[0]),end="")
-                print("%f %f %f %f "%tuple(m.row[1]),end="")
-                print("%f %f %f %f "%tuple(m.row[2]),end="")
-                print("%f %f %f %f"%tuple(m.row[3]),end="")
-            print("</modeler_animation_transform>")
+                exportFile.writeData("%f %f %f %f "%tuple(m.row[0]),' ')
+                exportFile.writeData("%f %f %f %f "%tuple(m.row[1]),' ')
+                exportFile.writeData("%f %f %f %f "%tuple(m.row[2]),' ')
+                exportFile.writeData("%f %f %f %f"%tuple(m.row[3]),' ')
+            exportFile.writeData("</modeler_animation_transform>")
             
-            print()
+             
             for animation in self.animations:
-                #print animations
-                print("<animation name=\"%s\" fps=\"%f\">"%(animation.name,animation.fps))
+                #exportFile.writeData animations
+                exportFile.writeData("<animation name=\"%s\" fps=\"%f\">"%(animation.name,animation.fps))
                 
                 for keyframe in animation.keyframes:
                     
-                    #print keyframe time
-                    print("<keyframe time=\"%f\">"%keyframe.time)
+                    #exportFile.writeData keyframe time
+                    exportFile.writeData("<keyframe time=\"%f\">"%keyframe.time)
                     
                     for bonePoses in keyframe.animationBonePoses:
                         
-                        #print bone poses
-                        print("<pose_matrix name=\"%s\">"%bonePoses.name,end="")
+                        #exportFile.writeData bone poses
+                        exportFile.writeData("<pose_matrix name=\"%s\">"%bonePoses.name,' ')
                         
                         for m in bonePoses.pose:
-                            print("%f %f %f %f "%tuple(m.row[0]),end="")
-                            print("%f %f %f %f "%tuple(m.row[1]),end="")
-                            print("%f %f %f %f "%tuple(m.row[2]),end="")
-                            print("%f %f %f %f"%tuple(m.row[3]),end="")
+                            exportFile.writeData("%f %f %f %f "%tuple(m.row[0]),' ')
+                            exportFile.writeData("%f %f %f %f "%tuple(m.row[1]),' ')
+                            exportFile.writeData("%f %f %f %f "%tuple(m.row[2]),' ')
+                            exportFile.writeData("%f %f %f %f"%tuple(m.row[3]),' ')
                         
-                        print("</pose_matrix>")
+                        exportFile.writeData("</pose_matrix>")
                         
-                    print("</keyframe>")
+                    exportFile.writeData("</keyframe>")
                 
-                print("</animation>")
-            print("</animations>")             
+                exportFile.writeData("</animation>")
+            exportFile.writeData("</animations>")             
             
 
 class Materials:
@@ -472,154 +472,154 @@ class Model:
         self.worldMatrix=world
         self.prehullvertices=[]
         
-    def unloadModelData(self):
+    def unloadModelData(self,exportFile):
         
-        self.unloadCoordinates()
-        self.unloadHull()
-        self.unloadMaterialIndex()
-        self.unloadMaterials()
-        self.unloadTexture()
-        self.unloadLocalSpace()
-        self.unloadArmature()
-        self.unloadAnimations()
-        self.unloadDimension()
+        self.unloadCoordinates(exportFile)
+        self.unloadHull(exportFile)
+        self.unloadMaterialIndex(exportFile)
+        self.unloadMaterials(exportFile)
+        self.unloadTexture(exportFile)
+        self.unloadLocalSpace(exportFile)
+        self.unloadArmature(exportFile)
+        self.unloadAnimations(exportFile)
+        self.unloadDimension(exportFile)
     
-    def unloadCoordinates(self):
+    def unloadCoordinates(self,exportFile):
                 
-        print("<vertices>",end="")
+        exportFile.writeData("<vertices>",' ')
             
         for i in range(0,len(self.coordinates.vertices)):
             
-            print("%f %f %f "%tuple(self.coordinates.vertices[i]),end="")   
+            exportFile.writeData("%f %f %f "%tuple(self.coordinates.vertices[i]),' ')   
                 
-        print("</vertices>")
+        exportFile.writeData("</vertices>")
         
-        print()
+         
         
-        print("<normal>",end="")
+        exportFile.writeData("<normal>",' ')
         
         for i in range(0,len(self.coordinates.normal)):
             
-            print("%f %f %f "%tuple(self.coordinates.normal[i]),end="")
+            exportFile.writeData("%f %f %f "%tuple(self.coordinates.normal[i]),' ')
                      
-        print("</normal>")
+        exportFile.writeData("</normal>")
         
-        print()
+         
             
         if(self.hasUV):
             
-            print("<uv>",end="")
+            exportFile.writeData("<uv>",' ')
         
             for i in range(0,len(self.coordinates.uv)):
                 
-                print("%f %f "%tuple(self.coordinates.uv[i]),end="")
+                exportFile.writeData("%f %f "%tuple(self.coordinates.uv[i]),' ')
                    
-            print("</uv>")
+            exportFile.writeData("</uv>")
             
-            print() 
+              
     
-        print("<index>",end="")
+        exportFile.writeData("<index>",' ')
         
         for i in self.coordinates.index:
-            print("%d "%i,end="")
+            exportFile.writeData("%d "%i,' ')
         
-        print("</index>")
+        exportFile.writeData("</index>")
         
-        print()
+         
         
-    def unloadHull(self):
+    def unloadHull(self,exportFile):
         
-        print("<prehullvertices>",end="")
+        exportFile.writeData("<prehullvertices>",' ')
             
         for i in range(0,len(self.prehullvertices)):
             
-            print("%f %f %f "%tuple(self.prehullvertices[i]),end="")   
+            exportFile.writeData("%f %f %f "%tuple(self.prehullvertices[i]),' ')   
                 
-        print("</prehullvertices>")
+        exportFile.writeData("</prehullvertices>")
         
-        print()
+         
             
-    def unloadMaterials(self):
+    def unloadMaterials(self,exportFile):
         
         if(self.hasMaterials):
-            print("<diffuse_color>",end="")
+            exportFile.writeData("<diffuse_color>",' ')
             for d in self.materials.diffuse:
-                print("%f %f %f 1.0 " %tuple(d),end="")  
-            print("</diffuse_color>")    
+                exportFile.writeData("%f %f %f 1.0 " %tuple(d),' ')  
+            exportFile.writeData("</diffuse_color>")    
                 
-            print("<specular_color>",end="")
+            exportFile.writeData("<specular_color>",' ')
             for s in self.materials.specular:
-                print("%f %f %f 1.0 "%tuple(s),end="")
-            print("</specular_color>")    
+                exportFile.writeData("%f %f %f 1.0 "%tuple(s),' ')
+            exportFile.writeData("</specular_color>")    
             
-            print("<diffuse_intensity>",end="")
+            exportFile.writeData("<diffuse_intensity>",' ')
             for di in self.materials.diffuse_intensity:
-                print("%f " %di,end="")
-            print("</diffuse_intensity>")       
+                exportFile.writeData("%f " %di,' ')
+            exportFile.writeData("</diffuse_intensity>")       
             
-            print("<specular_intensity>",end="")
+            exportFile.writeData("<specular_intensity>",' ')
             for si in self.materials.specular_intensity:
-                print("%f " %si,end="")
-            print("</specular_intensity>") 
+                exportFile.writeData("%f " %si,' ')
+            exportFile.writeData("</specular_intensity>") 
             
-            print("<specular_hardness>",end="")
+            exportFile.writeData("<specular_hardness>",' ')
             for sh in self.materials.specular_hardness:
-                print("%f " %sh,end="")
-            print("</specular_hardness>") 
+                exportFile.writeData("%f " %sh,' ')
+            exportFile.writeData("</specular_hardness>") 
     
-            print()
+             
     
-    def unloadMaterialIndex(self):
+    def unloadMaterialIndex(self,exportFile):
         if(self.hasMaterials):
-            print("<material_index>",end="")
+            exportFile.writeData("<material_index>",' ')
             for i in self.materialIndex:
-                print("%d " %i,end="")  
-            print("</material_index>")  
-            print()
+                exportFile.writeData("%d " %i,' ')  
+            exportFile.writeData("</material_index>")  
+             
                 
-    def unloadTexture(self):
+    def unloadTexture(self,exportFile):
         
         if(self.hasTexture):
-            print("<texture_image>%s</texture_image>"%self.texture)
+            exportFile.writeData("<texture_image>%s</texture_image>"%self.texture)
             
-            print()
+             
     
-    def unloadLocalSpace(self):
+    def unloadLocalSpace(self,exportFile):
         
-        print("<local_matrix>",end="")
+        exportFile.writeData("<local_matrix>",' ')
         for m in self.localSpace:
-            print("%f %f %f %f "%tuple(m.row[0]),end="")
-            print("%f %f %f %f "%tuple(m.row[1]),end="")
-            print("%f %f %f %f "%tuple(m.row[2]),end="")
-            print("%f %f %f %f"%tuple(m.row[3]),end="")
-        print("</local_matrix>")
+            exportFile.writeData("%f %f %f %f "%tuple(m.row[0]),' ')
+            exportFile.writeData("%f %f %f %f "%tuple(m.row[1]),' ')
+            exportFile.writeData("%f %f %f %f "%tuple(m.row[2]),' ')
+            exportFile.writeData("%f %f %f %f"%tuple(m.row[3]),' ')
+        exportFile.writeData("</local_matrix>")
         
-        print()
+         
         
-    def unloadArmature(self):
+    def unloadArmature(self,exportFile):
         
         if(self.hasArmature):
-            self.armature.unloadBones()
+            self.armature.unloadBones(exportFile)
     
     def setArmature(self):
         self.armature.setRootBone()
         
-    def unloadAnimations(self):
+    def unloadAnimations(self,exportFile):
         
         if(self.hasArmature):
             if(self.armature.hasAnimation):
-                self.armature.unloadAnimations()   
+                self.armature.unloadAnimations(exportFile)   
         
-    def unloadDimension(self):
+    def unloadDimension(self,exportFile):
         
-        print("<dimension>",end="")
+        exportFile.writeData("<dimension>",' ')
             
         for dimension in self.dimension:
-            print("%f %f %f"%tuple(dimension),end="")  
+            exportFile.writeData("%f %f %f"%tuple(dimension),' ')  
                 
-        print("</dimension>")
+        exportFile.writeData("</dimension>")
         
-        print()
+         
         
 class Lights:
     pass
@@ -654,12 +654,13 @@ class Loader:
         
         self.loadModel()
         self.loadPointLights()
-        self.loadCamera()
+        #self.loadCamera()
         
-    def writeToFile(self):
-        self.unloadModel()
-        self.unloadPointLights()
-        self.unloadCamera()
+    def writeToFile(self, exportFile):
+        self.unloadData(exportFile)
+        self.unloadModel(exportFile)
+        self.unloadPointLights(exportFile)
+        #self.unloadCamera()
     
     def loadModel(self):
         
@@ -936,52 +937,51 @@ class Loader:
     def loadCamera(self):
         pass
 
-    def unloadData(self):
+    def unloadData(self,exportFile):
         
-        print("<?xml version=\"1.0\" encoding=\"utf-8\"?>")
-        print("<UntoldEngine xmlns=\"\" version=\"0.0.1\">")
+        exportFile.writeData("<?xml version=\"1.0\" encoding=\"utf-8\"?>")
+        exportFile.writeData("<UntoldEngine xmlns=\"\" version=\"0.0.1\">")
         
-        print("<asset>")
+        exportFile.writeData("<asset>")
         
-        self.unloadModel()
-        self.unloadPointLights()
+        self.unloadModel(exportFile)
+        self.unloadPointLights(exportFile)
         
-        print("</asset>")
+        exportFile.writeData("</asset>")
         
-        print("</UntoldEngine>")
+        exportFile.writeData("</UntoldEngine>")
         
         
-    def unloadModel(self):
+    def unloadModel(self,exportFile):
         
-        print("<meshes>")
+        exportFile.writeData("<meshes>")
         
         for model in self.modelList:
             
-            print("<mesh name=\"%s\" vertex_count=\"%d\" index_count=\"%d\">"%(model.name,len(model.coordinates.vertices),len(model.coordinates.index)))
+            exportFile.writeData("<mesh name=\"%s\" vertex_count=\"%d\" index_count=\"%d\">"%(model.name,len(model.coordinates.vertices),len(model.coordinates.index)))
             
-            model.unloadModelData()
+            model.unloadModelData(exportFile)
             
-            print("</mesh>")                                 
+            exportFile.writeData("</mesh>")                                 
             
-            print()
         
-        print("</meshes>")
-        print()
+        exportFile.writeData("</meshes>")
         
-    def unloadPointLights(self):
         
-        print("<point_lights>")
+    def unloadPointLights(self,exportFile):
+        
+        exportFile.writeData("<point_lights>")
         for lights in self.pointLightsList:
-            print()
-            print("<point_light name=\"%s\">"%lights.name)
+             
+            exportFile.writeData("<point_light name=\"%s\">"%lights.name)
             
-            lights.unloadPointLightData()
+            lights.unloadPointLightData(exportFile)
             
-            print("</point_light>")
-            print()
-        print("</point_lights>")
+            exportFile.writeData("</point_light>")
+             
+        exportFile.writeData("</point_lights>")
         
-        print()
+         
     def unloadCamera(self):
         pass
     
@@ -1000,7 +1000,7 @@ def main():
     loader.loadModel()
     loader.loadPointLights()
     
-    loader.unloadData()
+    loader.unloadData(exportFile)
 
     #close the file
     exportFile.closeFile()
