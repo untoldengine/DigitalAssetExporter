@@ -986,8 +986,65 @@ class Loader:
          
     def unloadCamera(self):
         pass
+
+
+# ExportHelper is a helper class, defines filename and
+# invoke() function which calls the file selector.
+from bpy_extras.io_utils import ExportHelper
+from bpy.props import StringProperty, BoolProperty, EnumProperty
+from bpy.types import Operator
+
+class ExportHelperClass(Operator, ExportHelper):
+    """This appears in the tooltip of the operator and in the generated docs"""
+    bl_idname = "untold_engine_export.data"  # important since its how bpy.ops.import_test.some_data is constructed
+    bl_label = "Export Mesh"
+
+    # ExportHelper mixin class uses this
+    filename_ext = ".u4d"
+
+    filter_glob = StringProperty(
+            default="*.u4d",
+            options={'HIDDEN'},
+            maxlen=255,  # Max internal buffer length, longer would be clamped.
+            )
+
+    # List of operator properties, the attributes will be assigned
+    # to the class instance from the operator settings before calling.
     
-def main():
+    # use_setting = BoolProperty(
+    #         name="Example Boolean",
+    #         description="Example Tooltip",
+    #         default=True,
+    #         )
+
+    # type = EnumProperty(
+    #         name="Example Enum",
+    #         description="Choose between two items",
+    #         items=(('OPT_A', "First Option", "Description one"),
+    #                ('OPT_B', "Second Option", "Description two")),
+    #         default='OPT_A',
+    #         )
+
+    def execute(self, context):
+        return main(context, self.filepath)
+
+
+# Only needed if you want to add into a dynamic menu
+def menu_func_export(self, context):
+    self.layout.operator(ExportHelperClass.bl_idname, text="Text Export Operator")
+
+
+def register():
+    bpy.utils.register_class(ExportHelperClass)
+    bpy.types.INFO_MT_file_export.append(menu_func_export)
+
+
+def unregister():
+    bpy.utils.unregister_class(ExportHelperClass)
+    bpy.types.INFO_MT_file_export.remove(menu_func_export)
+
+    
+def main(context, filePath):
 
 #bpy.context.scene.objects['Cube'].data.uv_layers.active.data[0].uv
     #set scene to frame zero
@@ -995,7 +1052,7 @@ def main():
     scene.frame_set(0)
     
     #open the file to write
-    exportFile=ExportFile("/Users/haroldserrano/Downloads/scripttext.txt")
+    exportFile=ExportFile(filePath)
     exportFile.openFile()
 
     loader=Loader()
@@ -1006,7 +1063,12 @@ def main():
 
     #close the file
     exportFile.closeFile()
+
+    return {'FINISHED'}
     
 
 if __name__ == '__main__':
-    main()
+    register()
+
+    # test call
+    bpy.ops.untold_engine_export.data('INVOKE_DEFAULT')
