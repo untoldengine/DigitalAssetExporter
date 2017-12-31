@@ -706,6 +706,10 @@ class Loader:
         
         
         self.world=world
+
+        #Normalize the rotation and scale of all objects
+
+        bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
         
         #get all models in the scene
         for models in scene.objects:
