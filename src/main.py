@@ -992,7 +992,44 @@ class Loader:
 # invoke() function which calls the file selector.
 from bpy_extras.io_utils import ExportHelper
 from bpy.props import StringProperty, BoolProperty, EnumProperty
-from bpy.types import Operator
+from bpy.types import Operator, Menu, Panel, UIList
+
+class View3DPanel():
+    bl_space_type='VIEW_3D'
+    bl_region_type='TOOLS'
+
+# Create a panel for the export settings
+class exportPanel(View3DPanel, Panel):
+    """Creates a Panel in the Object properties window"""
+    bl_label = "Untold Engine Export"
+    bl_idname = "OBJECT_PT_exportpanel"
+    bl_context="objectmode"
+    bl_category="Untold Engine"
+
+    def draw(self, context):
+        layout = self.layout
+
+        row = layout.row()
+        row.label(text="Export 3D Models")
+
+
+        row = layout.row()
+        row.operator("object.untoldengineexport")
+
+
+# Create an export button
+class exportButton(bpy.types.Operator):
+    bl_label = "Export"
+    bl_idname = "object.untoldengineexport"
+    bl_description = "Export"
+ 
+    def execute(self, context):
+
+        # call the export helper class
+        bpy.ops.untold_engine_export.data('INVOKE_DEFAULT')
+        
+        return {'FINISHED'}
+
 
 class ExportHelperClass(Operator, ExportHelper):
     """This appears in the tooltip of the operator and in the generated docs"""
@@ -1035,18 +1072,22 @@ def menu_func_export(self, context):
 
 
 def register():
+    bpy.utils.register_class(exportPanel)
+    bpy.utils.register_class(exportButton)
     bpy.utils.register_class(ExportHelperClass)
     bpy.types.INFO_MT_file_export.append(menu_func_export)
 
 
 def unregister():
+    bpy.utils.unregister_class(exportPanel)
+    bpy.utils.unregister_class(exportButton)
     bpy.utils.unregister_class(ExportHelperClass)
     bpy.types.INFO_MT_file_export.remove(menu_func_export)
 
     
 def main(context, filePath):
 
-#bpy.context.scene.objects['Cube'].data.uv_layers.active.data[0].uv
+
     #set scene to frame zero
     scene=bpy.context.scene
     scene.frame_set(0)
@@ -1071,4 +1112,5 @@ if __name__ == '__main__':
     register()
 
     # test call
-    bpy.ops.untold_engine_export.data('INVOKE_DEFAULT')
+    #bpy.ops.untold_engine_export.data('INVOKE_DEFAULT')
+    
