@@ -896,7 +896,33 @@ class Loader:
                 
                 #get dimension of object
                 model.dimension.append(scene.objects[model.name].dimensions)   
-                
+
+
+                #SECTION TO COMPUTE THE CONVEX HULL
+
+                meshCopy=bpy.data.meshes.new("modelCopy")
+                newModel=bpy.data.objects.new("modelCopy",meshCopy)
+
+                newModel.data=models.data.copy()
+                newModel.scale=models.scale
+                newModel.location=models.location
+                scene.objects.link(newModel)
+
+                newModel.select=True
+
+                scene.objects.active=newModel
+
+                # put the model in edit mode
+                bpy.ops.object.mode_set(mode='EDIT')
+
+                # select all parts of the model
+                bpy.ops.mesh.select_all(action='SELECT')
+
+                #compute the convex hull
+
+                bpy.ops.mesh.convex_hull()
+
+
                 #get the individual vertices to compute convex hull
                 for prehullvertices in scene.objects[model.name].data.vertices:
                 
@@ -909,8 +935,19 @@ class Loader:
                     prehullvertex=self.r3d(prehullvertex)
                     
                     model.prehullvertices.append(prehullvertex) 
-                    
+
+                
+                bpy.ops.object.mode_set(mode='OBJECT')
+
+                scene.objects.unlink(newModel)
+
+                scene.objects.active=models
+
+                #END SECTION TO COMPUTE CONVEX HULL
+       
                 self.modelList.append(model)
+
+
                 
     
     def loadPointLights(self):
