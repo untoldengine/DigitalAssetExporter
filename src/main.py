@@ -710,7 +710,8 @@ class Loader:
         #get all models in the scene
         for models in scene.objects:
             
-            if(models.type=="MESH"):
+            #export models that are of type mesh and are not hidden
+            if(models.type=="MESH" and models.hide is False):
 
 
                 #triangularized the models
