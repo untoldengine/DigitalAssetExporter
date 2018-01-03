@@ -686,6 +686,7 @@ class Loader:
 
 
         world.metalArmatureSpaceTransform=mathutils.Matrix.Identity(4)
+        world.metalArmatureSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
         world.metalArmatureSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
         world.metalArmatureSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1))
 
@@ -860,8 +861,20 @@ class Loader:
                     model.armature=modelArmature
                     
                     #update the metal space of the armature
-                    modelArmature.localMatrix=world.metalArmatureSpaceTransform.inverted()*armature.matrix_local*world.metalArmatureSpaceTransform
+                    #modelArmature.localMatrix=world.metalArmatureSpaceTransform.inverted()*armature.matrix_local*world.metalArmatureSpaceTransform
                     
+                    #modify the armature local matrix
+
+                    modelArmature.localMatrix=mathutils.Matrix.Identity(4)
+
+                    model.localSpace.clear()
+
+                    model_armature_localSpace=world.metalArmatureSpaceTransform*armature.matrix_local*world.metalArmatureSpaceTransform
+
+                    model.localSpace.append(model_armature_localSpace)
+
+                    #end modify the armature local matrix
+
                     #set name
                     model.armature.name=armature.name
                     
