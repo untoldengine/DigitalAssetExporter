@@ -686,6 +686,7 @@ class Loader:
 
 
         world.metalArmatureSpaceTransform=mathutils.Matrix.Identity(4)
+        world.metalArmatureSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
         world.metalArmatureSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
         world.metalArmatureSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1))
 
