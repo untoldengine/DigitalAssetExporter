@@ -482,6 +482,17 @@ class Model:
         self.unloadTexture(exportFile)
         self.unloadLocalSpace(exportFile)
         self.unloadArmature(exportFile)
+        self.unloadDimension(exportFile)
+
+    def unloadModelWithAnimation(self, exportFile):
+        
+        self.unloadCoordinates(exportFile)
+        self.unloadHull(exportFile)
+        self.unloadMaterialIndex(exportFile)
+        self.unloadMaterials(exportFile)
+        self.unloadTexture(exportFile)
+        self.unloadLocalSpace(exportFile)
+        self.unloadArmature(exportFile)
         self.unloadAnimations(exportFile)
         self.unloadDimension(exportFile)
     
@@ -993,15 +1004,29 @@ class Loader:
     def loadCamera(self):
         pass
 
-    def unloadData(self,exportFile):
+    def unloadData(self,exportFile, dataTypeToExport):
         
         exportFile.writeData("<?xml version=\"1.0\" encoding=\"utf-8\"?>")
-        exportFile.writeData("<UntoldEngine xmlns=\"\" version=\"0.0.1\">")
+        exportFile.writeData("<UntoldEngine xmlns=\"\" version=\"0.0.2\">")
         
         exportFile.writeData("<asset>")
-        
-        self.unloadModel(exportFile)
-        self.unloadPointLights(exportFile)
+
+
+        if dataTypeToExport == "Mesh":
+
+            self.unloadModel(exportFile)
+
+        elif dataTypeToExport == "MeshAnim":
+
+            self.unloadModelWithAnimation(exportFile)
+
+        elif dataTypeToExport == "Animation":
+            
+            self.unloadAnimation(exportFile)
+
+        elif dataTypeToExport == "Light":
+            
+            self.unloadPointLights(exportFile)
         
         exportFile.writeData("</asset>")
         
@@ -1024,6 +1049,37 @@ class Loader:
         
         exportFile.writeData("</meshes>")
         
+    def unloadAnimation(self, exportFile):
+        
+        exportFile.writeData("<meshes>")
+        
+        for model in self.modelList:
+            
+            exportFile.writeData("<!--Start of Mesh Data-->")
+            exportFile.writeData("<mesh name=\"%s\" vertex_count=\"%d\" index_count=\"%d\">"%(model.name,len(model.coordinates.vertices),len(model.coordinates.index)))
+            
+            model.unloadAnimations(exportFile)
+            
+            exportFile.writeData("</mesh>")                                 
+            
+        
+        exportFile.writeData("</meshes>")
+
+    def unloadModelWithAnimation(self, exportFile):
+        
+        exportFile.writeData("<meshes>")
+        
+        for model in self.modelList:
+            
+            exportFile.writeData("<!--Start of Animation Data-->")
+            exportFile.writeData("<mesh name=\"%s\" vertex_count=\"%d\" index_count=\"%d\">"%(model.name,len(model.coordinates.vertices),len(model.coordinates.index)))
+            
+            model.unloadModelWithAnimation(exportFile)
+            
+            exportFile.writeData("</mesh>")                                 
+            
+        
+        exportFile.writeData("</meshes>")
         
     def unloadPointLights(self,exportFile):
         
@@ -1109,16 +1165,18 @@ class ExportHelperClass(Operator, ExportHelper):
     #         default=True,
     #         )
 
-    # type = EnumProperty(
-    #         name="Example Enum",
-    #         description="Choose between two items",
-    #         items=(('OPT_A', "First Option", "Description one"),
-    #                ('OPT_B', "Second Option", "Description two")),
-    #         default='OPT_A',
-    #         )
+    dataTypeToExport = EnumProperty(
+            name="Export Type",
+            description="Choose data to export",
+            items=(('Mesh', "Mesh Data Only", "Export Mesh Data only"),
+                   ('MeshAnim', "Mesh and Animation Data", "Export Mesh and Animation Data"),
+                   ('Animation', "Animation Data Only", "Export Animation Data only"),
+                   ('Light', "Light Data Only", "Export Light Data only")),
+            default='Mesh',
+            )
 
     def execute(self, context):
-        return main(context, self.filepath)
+        return main(context, self.filepath, self.dataTypeToExport)
 
 
 # Only needed if you want to add into a dynamic menu
@@ -1140,7 +1198,7 @@ def unregister():
     bpy.types.INFO_MT_file_export.remove(menu_func_export)
 
     
-def main(context, filePath):
+def main(context, filePath, dataTypeToExport):
 
 
     #set scene to frame zero
@@ -1155,7 +1213,7 @@ def main(context, filePath):
     loader.loadModel()
     loader.loadPointLights()
     
-    loader.unloadData(exportFile)
+    loader.unloadData(exportFile, dataTypeToExport)
 
     #close the file
     exportFile.closeFile()
