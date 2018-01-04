@@ -1071,7 +1071,7 @@ class Loader:
         
         for model in self.modelList:
             
-            exportFile.writeData("<!--Start of Mesh Data-->")
+            exportFile.writeData("<!--Start of Animation Data-->")
             exportFile.writeData("<mesh name=\"%s\" vertex_count=\"%d\" index_count=\"%d\">"%(model.name,len(model.coordinates.vertices),len(model.coordinates.index)))
             
             model.unloadModelWithAnimation(exportFile)
