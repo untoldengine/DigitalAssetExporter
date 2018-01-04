@@ -1007,7 +1007,7 @@ class Loader:
     def unloadData(self,exportFile, dataTypeToExport):
         
         exportFile.writeData("<?xml version=\"1.0\" encoding=\"utf-8\"?>")
-        exportFile.writeData("<UntoldEngine xmlns=\"\" version=\"0.0.1\">")
+        exportFile.writeData("<UntoldEngine xmlns=\"\" version=\"0.0.2\">")
         
         exportFile.writeData("<asset>")
 
