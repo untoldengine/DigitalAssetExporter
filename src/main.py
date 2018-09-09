@@ -1,7 +1,7 @@
 '''
 Created on Sep 25, 2014
 
-Digital Asset Loader script for the Untold Engine
+Digital Asset Exporter script for the Untold Engine
 
 @author: Harold Serrano
 '''
