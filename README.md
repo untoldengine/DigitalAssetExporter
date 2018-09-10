@@ -4,4 +4,4 @@ The Digital Asset Exporter (DAE) is a Blender 3D plugin developed to work specif
 
 The DAE extracts the attributes of a 3D model and makes it available for the Untold Engine to use during rendering.
 
-For more information on how to use this plugin, review this [article](http://www.untoldengine.com/blog/using-the-digital-asset-exporter).
+For more information on how to use this plugin, review this [article](http://www.untoldengine.com/blog/user-guide-import-a-3d-model-with-the-dae).
