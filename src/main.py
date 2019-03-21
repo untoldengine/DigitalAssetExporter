@@ -460,6 +460,11 @@ class Coordinates:
         self.uv=[]
         self.index=[]
 
+class Faces:
+    def __init__(self):
+        self.vertices=[]
+        self.edgesIndex=[]
+        self.facesIndex=[]
 
 class Textures:
     def __init__(self):
@@ -487,6 +492,7 @@ class Model:
         self.vertexGroupDict={}   
         self.worldMatrix=world
         self.prehullvertices=[]
+        self.faces=Faces()
         
     def unloadModelData(self,exportFile):
         
@@ -498,6 +504,7 @@ class Model:
         self.unloadLocalSpace(exportFile)
         self.unloadArmature(exportFile)
         self.unloadDimension(exportFile)
+        self.unloadFaces(exportFile)
 
     def unloadModelWithAnimation(self, exportFile):
         
@@ -510,6 +517,7 @@ class Model:
         self.unloadArmature(exportFile)
         self.unloadAnimations(exportFile)
         self.unloadDimension(exportFile)
+        self.unloadFaces(exportFile)
     
     def unloadCoordinates(self,exportFile):
                 
@@ -646,7 +654,28 @@ class Model:
                 
         exportFile.writeData("</dimension>")
         
-         
+    def unloadFaces(self,exportFile):
+
+        exportFile.writeData("<mesh_vertices>",' ')
+
+        for meshVertex in self.faces.vertices:
+            exportFile.writeData("%f %f %f "%tuple(meshVertex),' ')
+
+        exportFile.writeData("</mesh_vertices>")     
+
+        exportFile.writeData("<mesh_edges_index>",' ')
+
+        for meshEdge in self.faces.edgesIndex:
+            exportFile.writeData("%d "%meshEdge,' ')
+
+        exportFile.writeData("</mesh_edges_index>")
+
+        exportFile.writeData("<mesh_faces_index>",' ')
+
+        for meshface in self.faces.facesIndex:
+            exportFile.writeData("%d "%meshface,' ')
+
+        exportFile.writeData("</mesh_faces_index>")
         
 class Lights:
     pass
@@ -936,6 +965,23 @@ class Loader:
                 #get dimension of object
                 model.dimension.append(scene.objects[model.name].dimensions)   
 
+                #SECTION TO EXTRACT THE FACES OF THE MESH
+                for meshVertex in scene.objects[model.name].data.vertices:
+
+                    #convert vertex to metal coordinate
+                    meshFaceVertex=world.metalSpaceTransform*meshVertex.co                
+                    
+                    meshFaceVertex=self.r3d(meshFaceVertex)
+
+                    model.faces.vertices.append(meshFaceVertex)
+
+                for meshEdge in scene.objects[model.name].data.edges:
+                    for vertexIndex in meshEdge.vertices:
+                        model.faces.edgesIndex.append(vertexIndex)
+
+                for meshFace in scene.objects[model.name].data.polygons:
+                    for vertexIndex in meshFace.vertices:
+                        model.faces.facesIndex.append(vertexIndex)
 
                 #SECTION TO COMPUTE THE CONVEX HULL
 
