@@ -21,6 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 @author: Harold Serrano
 '''
 import bpy
+import bmesh
 import mathutils
 import operator
 import copy
@@ -54,7 +55,43 @@ class ExportFile:
         
         return {'FINISHED'}
 
+class NavMeshNode:
+    def __init__(self):
+        self.index=None
+        self.location=[]
+        self.neighbours=[]
 
+class NavMesh:
+    
+    def __init__(self):
+        self.name=None
+        self.navMeshNodes=[]
+
+
+    def unloadNavMeshData(self,exportFile):
+
+
+        for node in self.navMeshNodes:
+
+            exportFile.writeData("<node index=\"%d\">"%(node.index))
+
+            exportFile.writeData("<node_location>",' ')
+
+            for location in node.location:
+                exportFile.writeData("%f %f %f"%tuple(location),' ')
+
+            exportFile.writeData("</node_location>")
+
+            exportFile.writeData("<node_neighbours>",' ')
+
+            for neighbour in node.neighbours:
+                exportFile.writeData("%d "%neighbour,' ')
+
+            exportFile.writeData("</node_neighbours>")
+                        
+            exportFile.writeData("</node>") 
+            
+        
 class PointLights:
     def __init__(self):
         self.name=None
@@ -518,6 +555,12 @@ class Model:
         self.unloadAnimations(exportFile)
         self.unloadDimension(exportFile)
         self.unloadFaces(exportFile)
+
+
+    def unloadNavMeshdata(self, exportFile):
+
+        self.unloadNavMesh(exportFile)
+
     
     def unloadCoordinates(self,exportFile):
                 
@@ -696,6 +739,7 @@ class Loader:
         self.modelList=[]
         self.pointLightsList=[]
         self.cameraList=[]
+        self.navMeshList=[]
         self.world=None
         
     def r3d(self,v):
@@ -1061,6 +1105,81 @@ class Loader:
                     
                     #append the lights to the list
                     self.pointLightsList.append(light)
+
+    def loadNavMesh(self):
+
+        scene=bpy.context.scene
+
+        #get world matrix
+        world=World()
+        #convert world to metal coords
+        world.metalSpaceTransform=mathutils.Matrix.Identity(4)
+        world.metalSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+        world.metalSpaceTransform*=mathutils.Matrix.Rotation(radians(90), 4, "X")
+        world.metalSpaceTransform*=mathutils.Matrix.Scale(-1, 4, (0,0,1))
+
+        #metal transformation
+        world.metalSpaceTransform *= mathutils.Matrix.Scale(-1, 4, (1, 0, 0))
+        world.metalSpaceTransform *= mathutils.Matrix.Rotation(radians(180), 4, "Z")
+
+
+        world.metalLocalSpaceTransform=mathutils.Matrix.Identity(4)
+        world.metalLocalSpaceTransform*=mathutils.Matrix.Rotation(radians(90),4,"X")
+        world.metalLocalSpaceTransform*=mathutils.Matrix.Scale(-1,4,(0,0,1))        
+        
+        self.world=world
+
+        for model in scene.objects:
+            
+            #export models that are of type mesh and are not hidden
+            if(model.type=="MESH" and model.hide is False):
+
+                # START SECTION FOR NAV MESH NODES
+
+                # put the model in edit mode
+                bpy.ops.object.mode_set(mode='EDIT')
+
+                # select all parts of the model
+                bpy.ops.mesh.select_all(action='SELECT')
+
+
+                navMesh=NavMesh()
+
+                navMesh.name=model.name
+
+                bm=bmesh.from_edit_mesh(scene.objects[model.name].data)
+
+                for modelFace in bm.faces:
+                    
+
+                    navMeshNode=NavMeshNode()
+
+                    navMeshNode.index=modelFace.index
+
+                    #center of face
+                    meshNode_location=modelFace.calc_center_median()
+
+                    meshNode_location=world.metalSpaceTransform*meshNode_location
+
+                    meshNode_location=self.r3d(meshNode_location)
+
+                    navMeshNode.location.append(meshNode_location)
+                    
+                    # get the neihbors of the mesh nodes
+                    for edge in modelFace.edges:
+                        linked = edge.link_faces
+                        for face in linked:
+                            if(face.index!=modelFace.index):
+                                navMeshNode.neighbours.append(face.index)
+
+                    navMesh.navMeshNodes.append(navMeshNode)
+
+                bpy.ops.object.mode_set(mode='OBJECT')
+
+                # END SENCTION FOR NAV MESH NODES
+
+                #append nav mesh
+                self.navMeshList.append(navMesh)
     
     def loadCamera(self):
         pass
@@ -1088,6 +1207,10 @@ class Loader:
         elif dataTypeToExport == "Light":
             
             self.unloadPointLights(exportFile)
+
+        elif dataTypeToExport == "NavMesh":
+
+            self.unloadNavMesh(exportFile)
         
         exportFile.writeData("</asset>")
         
@@ -1154,6 +1277,21 @@ class Loader:
             exportFile.writeData("</point_light>")
              
         exportFile.writeData("</point_lights>")
+
+    def unloadNavMesh(self,exportFile):
+
+        exportFile.writeData("<!--Start of Navigation Data-->")
+        exportFile.writeData("<navigation_mesh>")
+
+        for navMesh in self.navMeshList:
+
+            exportFile.writeData("<nav_mesh name=\"%s\">"%navMesh.name)
+
+            navMesh.unloadNavMeshData(exportFile)
+
+            exportFile.writeData("</nav_mesh>")
+
+        exportFile.writeData("</navigation_mesh>")
         
          
     def unloadCamera(self):
@@ -1232,7 +1370,8 @@ class ExportHelperClass(Operator, ExportHelper):
             items=(('Mesh', "Mesh Data Only", "Export Mesh Data only"),
                    ('MeshAnim', "Mesh and Animation Data", "Export Mesh and Animation Data"),
                    ('Animation', "Animation Data Only", "Export Animation Data only"),
-                   ('Light', "Light Data Only", "Export Light Data only")),
+                   ('Light', "Light Data Only", "Export Light Data only"),
+                   ('NavMesh', "Navigation Data", "Export NavMesh Data only")),
             default='Mesh',
             )
 
@@ -1273,6 +1412,9 @@ def main(context, filePath, dataTypeToExport):
     loader=Loader()
     loader.loadModel()
     loader.loadPointLights()
+
+    if dataTypeToExport == "NavMesh":
+        loader.loadNavMesh()
     
     loader.unloadData(exportFile, dataTypeToExport)
 
