@@ -455,12 +455,12 @@ class Armature:
              
             for animation in self.animations:
                 #exportFile.writeData animations
-                exportFile.writeData("<animation name=\"%s\" fps=\"%f\">"%(animation.name,animation.fps))
+                exportFile.writeData("<animation name=\"%s\" fps=\"%f\" keyframe_count=\"%d\">"%(animation.name,animation.fps,len(animation.keyframes)))
                 
                 for keyframe in animation.keyframes:
                     
                     #exportFile.writeData keyframe time
-                    exportFile.writeData("<keyframe time=\"%f\">"%keyframe.time)
+                    exportFile.writeData("<keyframe time=\"%f\" bone_count=\"%d\">"%(keyframe.time,len(keyframe.animationBonePoses)))
                     
                     for bonePoses in keyframe.animationBonePoses:
                         
@@ -1219,7 +1219,7 @@ class Loader:
         
     def unloadModel(self,exportFile):
         
-        exportFile.writeData("<meshes>")
+        exportFile.writeData("<meshes meshes_count=\"%d\">"%len(self.modelList))
         
         for model in self.modelList:
             
