@@ -1347,10 +1347,10 @@ class ExportHelperClass(Operator, ExportHelper):
     bl_label = "Export Mesh"
 
     # ExportHelper mixin class uses this
-    filename_ext = ".u4d"
+    filename_ext = ".xml"
 
     filter_glob = StringProperty(
-            default="*.u4d",
+            default="*.xml",
             options={'HIDDEN'},
             maxlen=255,  # Max internal buffer length, longer would be clamped.
             )
@@ -1368,9 +1368,7 @@ class ExportHelperClass(Operator, ExportHelper):
             name="Export Type",
             description="Choose data to export",
             items=(('Mesh', "Mesh Data Only", "Export Mesh Data only"),
-                   ('MeshAnim', "Mesh and Animation Data", "Export Mesh and Animation Data"),
                    ('Animation', "Animation Data Only", "Export Animation Data only"),
-                   ('Light', "Light Data Only", "Export Light Data only"),
                    ('NavMesh', "Navigation Data", "Export NavMesh Data only")),
             default='Mesh',
             )
