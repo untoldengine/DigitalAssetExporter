@@ -26,4 +26,4 @@ The DAE will reflect this changes and provide the engine the new locations, as s
 
 ![image1](images/spacepackmoved.png)
 
-For more information on how to use this plugin, review this [article](http://www.untoldengine.com/blog/user-guide-import-a-3d-model-with-the-dae).
+For more information on how to use this plugin, visit [Untold Engine](http://www.untoldengine.com).
