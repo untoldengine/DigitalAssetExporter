@@ -26,6 +26,7 @@ import mathutils
 import operator
 import copy
 from math import radians
+import os.path
 from math import degrees
 
 #class to write to a file
@@ -1355,15 +1356,6 @@ class ExportHelperClass(Operator, ExportHelper):
             maxlen=255,  # Max internal buffer length, longer would be clamped.
             )
 
-    # List of operator properties, the attributes will be assigned
-    # to the class instance from the operator settings before calling.
-    
-    # use_setting = BoolProperty(
-    #         name="Example Boolean",
-    #         description="Example Tooltip",
-    #         default=True,
-    #         )
-
     dataTypeToExport = EnumProperty(
             name="Export Type",
             description="Choose data to export",
@@ -1374,6 +1366,24 @@ class ExportHelperClass(Operator, ExportHelper):
             )
 
     def execute(self, context):
+
+        #removes the .xml extension
+        if self.filepath.endswith('.xml'):
+            self.filepath=self.filepath[:-4]
+
+        if(self.dataTypeToExport=="Mesh"):
+
+            self.filepath=self.filepath+".xmlscene"
+
+        elif(self.dataTypeToExport=="Animation"):
+
+            self.filepath=self.filepath+".xmlanim"
+
+        elif(self.dataTypeToExport=="NavMesh"):
+
+            self.filepath=self.filepath+".u4d"  #we may want to change this to .xmlnav later on, once the binary exporter has been modified for nav meshes
+
+
         return main(context, self.filepath, self.dataTypeToExport)
 
 
